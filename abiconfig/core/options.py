@@ -3,8 +3,11 @@ from __future__ import unicode_literals, division, print_function, absolute_impo
 import sys
 import os
 import re
+import json
 
 from collections import OrderedDict, defaultdict
+from pprint import pformat
+from abiconfig.core.termcolor import cprint
 
 
 def rmquotes(s):
@@ -13,22 +16,6 @@ def rmquotes(s):
     s = re.sub(r'^"|"$', "", s)
     s = re.sub(r"^'|'$", "", s)
     return s
-
-
-def get_ncpus():
-    """
-    Number of virtual or physical CPUs on this system
-    """
-    # Python 2.6+
-    # May raise NonImplementedError
-    try:
-	import multiprocessing
-        return multiprocessing.cpu_count()
-    except (ImportError, NotImplementedError):
-        pass
-
-    print('Cannot determine number of CPUs on this system!')
-    return 4
 
 
 class Option(object):
@@ -190,14 +177,28 @@ class Config(OrderedDict):
     """
     @classmethod
     def from_file(cls, path):
-	"""Initialize the object from a .ac file."""
+	"""
+        Initialize the object from an .ac file.
+        """
         path = os.path.abspath(path)
         new = cls()
         new.path = path
         new.basename = os.path.basename(path)
 
         with open(path, "rt") as fh:
-            for line in fh:
+            lines = fh.readlines()
+
+            # Read metadata.
+            inmeta, meta = 0, []
+            for line in lines:
+                if line.startswith("#---"): inmeta += 1
+                if inmeta == 2: break
+                if inmeta and not line.startswith("#---"):
+                    meta.append(line.replace("#", "", 1))
+
+            new._parse_meta("".join(meta))
+
+            for line in lines:
                 line = line.strip()
                 if line.startswith("#") or not line: continue
                 i = line.index("=")
@@ -213,8 +214,33 @@ class Config(OrderedDict):
         return "<%s: %s>" % (self.__class__.__name__, self.path)
 
     def __str__(self):
-	lines = ["%s=%s" % (k, v) for k, v in self.items()]
+        return self.to_string()
+
+    def to_string(self):
+        """String representation."""
+        lines = [self.path, " "]
+        lines.extend([pformat(self.meta, indent=2), " "])
+	lines.extend("%s=%s" % (k, v) for k, v in self.items())
         return "\n".join(lines)
+
+    def _parse_meta(self, s):
+        self.meta = json.loads(s)
+
+        errors = []
+        eapp = errors.append
+        if not self.meta: eapp("Empty metadata section")
+        required = ["hostname", "author", "date", "description", "keywords", "modules"]
+        for key in required:
+            if key not in self.meta:
+                eapp("Missing key: %s" % key)
+
+        # TODO: Additional tests
+        if errors:
+            raise ValueError("Wrong metadata section in file: %s\n%s" % (self.path, "\n".join(errors)))
+
+        # ADd hostname to keywords.
+        if self.meta["hostname"] not in self.meta["keywords"]:
+            self.meta["keywords"].append(self.meta["hostname"])
 
 
 class ConfigList(list):
@@ -233,7 +259,7 @@ class ConfigList(list):
                 try:
 		    configs.append(Config.from_file(path))
                 except Exception as exc:
-                    print("Exception while parsing %s:\n%s" % (path, str(exc)))
+                    cprint("Exception while parsing %s:\n%s" % (path, str(exc)), "red")
                     raise
 
         return configs
@@ -270,9 +296,9 @@ class ConfigList(list):
 
         # Print errors detected in configuration files.
         if config_errors:
-            print("Found %d erroneous configuration files" % len(config_errors))
+            cprint("Found %d erroneous configuration files" % len(config_errors), "red")
             for path, errors in config_errors.items():
-                print("In configuration file: %s" % path)
+                cprint("In configuration file: %s" % path, "yellow")
                 for i, err in enumerate(errors):
                     print("[%d] %s" % (i, err))
                 print(90 * "-")
@@ -282,7 +308,7 @@ class ConfigList(list):
         for name, tuples in optmap.items():
             #count[name] = len(tuples)
             if not tuples:
-                print("%s is never used" % name)
+                cprint("%s is never used" % name, "yellow")
             else:
                 #print("%s is used in %s configuration files" % (name, len(tuples)))
                 opt = options[name]
@@ -302,7 +328,7 @@ class ConfigList(list):
         for name, d in optval_usage.items():
             if all(l for l in d.values()): continue
 	    i += 1
-	    if i == 1: print("The following values are never used in the config files")
+	    if i == 1: cprint("The following values are never used in the config files", "yellow")
             print("[%s]" % name)
             for k, l in d.items():
                 if not l: print(k)

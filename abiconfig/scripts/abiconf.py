@@ -6,8 +6,10 @@ import sys
 import os
 import argparse
 
-from abiconfig.core.options import AbinitConfigureOptions, ConfigList
+from pprint import pprint
+from abiconfig.core.utils import get_ncpus, marquee, is_string
 from abiconfig.core.termcolor import cprint
+from abiconfig.core.options import AbinitConfigureOptions, ConfigList
 
 
 def abiconf_list(cliopts, confopts, configs):
@@ -26,15 +28,38 @@ def abiconf_hostname(cliopts, confopts, configs):
     """Find configuration files for this hostname."""
     from socket import gethostname
     hostname = gethostname() if cliopts.hostname is None else cliopts.hostname
-    cprint("Finding configuration files for hostname: %s" % hostname, "yellow")
+    cprint("Finding configuration files for hostname: `%s`" % hostname, "yellow")
     for conf in configs:
-	if hostname not in conf.basename: continue
+	if not (hostname in conf.meta or hostname in conf.basename): continue
 	print(conf)
     return 0
 
 
+def abiconf_keys(cliopts, confopts, configs):
+    """Find configuration files containing keywords."""
+    if cliopts.keys is None:
+        # Print list of available keywords.
+        all_keys = set()
+        for conf in configs:
+            all_keys.update(conf.meta["keywords"])
+
+        cprint(marquee("Available keywords"), "yellow")
+        for i, key in enumerate(all_keys):
+            print("[%d] %s" % (i, key))
+
+    else:
+        # Find configuration files containing keywords.
+        keys = cliopts.keys
+        if is_string(keys): keys = [keys]
+        keys = set(keys)
+        for conf in configs:
+            if keys.issubset(conf.meta["keywords"]):
+                cprint(marquee(conf.path), "yellow")
+                pprint(conf.meta)
+    return 0
+
 def abiconf_find(cliopts, confopts, configs):
-    """Test coverage."""
+    """Find configuration files matching a given condition."""
     optname = cliopts.optname
     for conf in configs:
         if optname in conf:
@@ -57,14 +82,14 @@ def abiconf_workon(cliopts, confopts, configs):
     # If builder name is not specified, print list of builders and return
     # else create build directory to compile the code.
     if cliopts.builder is None:
-        if cliopts.verbose: print("Listing all buildbot builders found in", modir)
+        if cliopts.verbose: print("Listing all buildbot builders found in `%s`" % modir)
         for i, builder in enumerate(builders):
             print("[%d] %s" % (i, builder))
         return 0
 
     builder = cliopts.builder
     if builder not in builders:
-        cprint("Cannot find builder %s in %s" % (builder, builders), "red")
+        cprint("Cannot find builder `%s` in `%s`" % (builder, builders), "red")
         return 1
 
     workdir = builder
@@ -73,15 +98,15 @@ def abiconf_workon(cliopts, confopts, configs):
     for conf in configs:
         if conf.basename == acfile: break
     else:
-        cprint("Cannot find configuration file associated to %s" % builder, "red")
+        cprint("Cannot find configuration file associated to builder `%s`" % builder, "red")
         return 1
 
     # Look before you leap.
     if os.path.exists(workdir):
-	cprint("Directory %s already exists. Returning" % workdir, "red")
+	cprint("Directory `%s` already exists. Returning" % workdir, "red")
 	return 1
     if os.path.exists(script):
-	cprint("Script %s already exists. Will execute it" % script, "yellow")
+	cprint("Script `%s` already exists. Will execute it." % script, "yellow")
 	return os.system("bash %s" % script)
 
     # Create build directory, add symbolic link to the ac file.
@@ -90,7 +115,7 @@ def abiconf_workon(cliopts, confopts, configs):
     os.chdir(workdir)
     os.symlink(conf.path, acfile)
 
-    # Write sh script to start new with modules and run it.
+    # Write shell script to start new with modules and run it.
     has_nag = "nag" in builder
     nthreads = get_ncpus()
     with open(script, "w+") as fh:
@@ -117,7 +142,8 @@ def main():
     def str_examples():
         return """\
 Usage example:
-    abiconf.py hostname                       => Find conf files for this host
+    abiconf.py hostname [HOST]                => Find conf files for this hostname HOST
+    abiconf.py keys intel mkl                 => Find configuration files with these keywords
     abiconf.py list                           => List configure options
     abiconf.py find                           =>
     abiconf.py check                          =>
@@ -134,7 +160,7 @@ Usage example:
     copts_parser = argparse.ArgumentParser(add_help=False)
     copts_parser.add_argument('-v', '--verbose', default=0, action='count', # -vv --> verbose=2
                               help='Verbose, can be supplied multiple times to increase verbosity')
-    copts_parser.add_argument('-s', '--source', default=".", help='Path to the Abinit source tree')
+    #copts_parser.add_argument('-s', '--source', default=".", help='Path to the Abinit source tree')
 
     # Build the main parser.
     parser = argparse.ArgumentParser(epilog=str_examples(), formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -142,16 +168,28 @@ Usage example:
     # Create the parsers for the sub-commands
     subparsers = parser.add_subparsers(dest='command', help='sub-command help', description="Valid subcommands")
 
+
+
+
+
+
+
+    # Subparser for hostname command.
+    p_hostname = subparsers.add_parser('hostname', parents=[copts_parser], help=abiconf_hostname.__doc__)
+    p_hostname.add_argument("hostname", nargs="?", default=None,
+                            help="Find configuration file for this hostname. If not given hostname is autodetected.")
+
+    # List configuration files containing these keywords.
+    p_keys = subparsers.add_parser('keys', parents=[copts_parser], help=abiconf_hostname.__doc__)
+    p_keys.add_argument("keys", nargs="?", default=None,
+                            help="Find configuration files with these keywords. "
+                                 "Show available keywords if no value is provided.")
+
     # Subparser for list command.
     p_list = subparsers.add_parser('list', parents=[copts_parser], help=abiconf_list.__doc__)
 
     # Subparser for check command.
     p_check = subparsers.add_parser('check', parents=[copts_parser], help=abiconf_check.__doc__)
-
-    # Subparser for find command.
-    p_hostname = subparsers.add_parser('hostname', parents=[copts_parser], help=abiconf_hostname.__doc__)
-    p_hostname.add_argument("hostname", nargs="?", default=None,
-                            help="Find configuration file for this hostname. If not given hostname is autodetected.")
 
     # Subparser for find command.
     p_find = subparsers.add_parser('find', parents=[copts_parser], help=abiconf_find.__doc__)
@@ -176,7 +214,7 @@ Usage example:
     #confdir = os.path.join(root, "doc", "build", "config-examples")
     confdir = "/Users/gmatteo/git/abiconfig/abiconfig/clusters"
     configs = ConfigList.from_dir(confdir)
-    print("Found %d config files inside %s" % (len(configs), os.path.relpath(confdir)))
+    print("Found %d configuration files in `%s`" % (len(configs), os.path.relpath(confdir)))
 
     # Dispatch.
     return globals()["abiconf_" + cliopts.command](cliopts, confopts, configs)

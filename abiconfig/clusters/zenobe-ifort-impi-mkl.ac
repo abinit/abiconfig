@@ -2,9 +2,9 @@
 #{
 #"hostname": "zenobe",
 #"author": "M. Giantomassi",
-#"date":
-#"keywords": [""],
-#"description": "",
+#"date": "foo",
+#"description": "hello",
+#"keywords": ["intel", "mkl", "scalapack"],
 #"modules": [
 #  ]
 #}

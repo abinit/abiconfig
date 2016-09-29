@@ -12,7 +12,7 @@ from abiconfig.core.termcolor import cprint
 from abiconfig.core.options import AbinitConfigureOptions, ConfigList
 
 
-def abiconf_list(cliopts, confopts, configs):
+def abiconf_opts(cliopts, confopts, configs):
     """List available configure options."""
     for opt in confopts.values():
         print(opt)
@@ -26,12 +26,28 @@ def abiconf_check(cliopts, confopts, configs):
 
 def abiconf_hostname(cliopts, confopts, configs):
     """Find configuration files for this hostname."""
+    def show_hostnames():
+        print(marquee("List of available hostnames"))
+        for h in sorted({conf.meta["hostname"] for conf in configs}):
+            print(h)
+
+    if cliopts.show_hostnames:
+        show_hostnames()
+        return 0
+
     from socket import gethostname
     hostname = gethostname() if cliopts.hostname is None else cliopts.hostname
     cprint("Finding configuration files for hostname: `%s`" % hostname, "yellow")
+    nfound = 0
     for conf in configs:
 	if not (hostname in conf.meta or hostname in conf.basename): continue
+        nfound += 1
 	print(conf)
+
+    if nfound == 0:
+        cprint("Cannot find configuration files for this hostname", "yellow")
+        show_hostnames()
+
     return 0
 
 
@@ -94,7 +110,7 @@ def abiconf_workon(cliopts, confopts, configs):
 
     workdir = builder
     acfile = builder + ".ac"
-    script = "workon.sh"
+    script = "_workon.sh"
     for conf in configs:
         if conf.basename == acfile: break
     else:
@@ -142,11 +158,11 @@ def main():
     def str_examples():
         return """\
 Usage example:
-    abiconf.py hostname [HOST]                => Find conf files for this hostname HOST
-    abiconf.py keys intel mkl                 => Find configuration files with these keywords
-    abiconf.py list                           => List configure options
+    abiconf.py hostname [HOST]                => Find conf files for this hostname HOST.
+    abiconf.py keys intel mkl                 => Find configuration files with these keywords.
     abiconf.py find                           =>
-    abiconf.py check                          =>
+    abiconf.py opts                           => List available configure options.
+    abiconf.py check [DIRorFILEs]             => Check configuration files.
     abiconf.py workon abiref_gnu_5.3_debug    =>
 """
 
@@ -160,7 +176,6 @@ Usage example:
     copts_parser = argparse.ArgumentParser(add_help=False)
     copts_parser.add_argument('-v', '--verbose', default=0, action='count', # -vv --> verbose=2
                               help='Verbose, can be supplied multiple times to increase verbosity')
-    #copts_parser.add_argument('-s', '--source', default=".", help='Path to the Abinit source tree')
 
     # Build the main parser.
     parser = argparse.ArgumentParser(epilog=str_examples(), formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -168,16 +183,11 @@ Usage example:
     # Create the parsers for the sub-commands
     subparsers = parser.add_subparsers(dest='command', help='sub-command help', description="Valid subcommands")
 
-
-
-
-
-
-
     # Subparser for hostname command.
     p_hostname = subparsers.add_parser('hostname', parents=[copts_parser], help=abiconf_hostname.__doc__)
     p_hostname.add_argument("hostname", nargs="?", default=None,
                             help="Find configuration file for this hostname. If not given hostname is autodetected.")
+    p_hostname.add_argument("-s", "--show-hostnames", default=False, action="store_true", help="List available hostnames.")
 
     # List configuration files containing these keywords.
     p_keys = subparsers.add_parser('keys', parents=[copts_parser], help=abiconf_hostname.__doc__)
@@ -185,8 +195,8 @@ Usage example:
                             help="Find configuration files with these keywords. "
                                  "Show available keywords if no value is provided.")
 
-    # Subparser for list command.
-    p_list = subparsers.add_parser('list', parents=[copts_parser], help=abiconf_list.__doc__)
+    # Subparser for opts command.
+    p_opts = subparsers.add_parser('opts', parents=[copts_parser], help=abiconf_opts.__doc__)
 
     # Subparser for check command.
     p_check = subparsers.add_parser('check', parents=[copts_parser], help=abiconf_check.__doc__)
@@ -205,16 +215,14 @@ Usage example:
     except Exception as exc:
         show_examples_and_exit(1)
 
-    #root = find_top_srctree(start_path=cliopts.source)
-    #options_conf = os.path.join(root, "config", "specs", "options.conf")
-    options_conf = "/Users/gmatteo/git/abiconfig/abiconfig/options.conf"
-    print("Reading configure options from %s" % os.path.relpath(options_conf))
-    confopts = AbinitConfigureOptions.from_file(options_conf)
+    # Read configure options from my internal copy of options.conf
+    confopts = AbinitConfigureOptions.from_myoptions_conf()
 
-    #confdir = os.path.join(root, "doc", "build", "config-examples")
-    confdir = "/Users/gmatteo/git/abiconfig/abiconfig/clusters"
-    configs = ConfigList.from_dir(confdir)
-    print("Found %d configuration files in `%s`" % (len(configs), os.path.relpath(confdir)))
+    dir_basenames = ["clusters"]
+    configs = ConfigList.from_mydirs(dir_basenames)
+    #configs = ConfigList.from_dir(confdir)
+    if cliopts.verbose:
+        print("Found %d configuration files in `%s`" % (len(configs), dir_basenames))
 
     # Dispatch.
     return globals()["abiconf_" + cliopts.command](cliopts, confopts, configs)

@@ -147,6 +147,13 @@ class AbinitConfigureOptions(OrderedDict):
     Dictionary: option_name --> Option instance
     """
     @classmethod
+    def from_myoptions_conf(cls):
+        """Read configure options from my internal copy of options.conf"""
+        options_conf = os.path.join(os.path.dirname(__file__), "options.conf")
+        #print("Reading configure options from %s" % options_conf)
+        return cls.from_file(options_conf)
+
+    @classmethod
     def from_file(cls, path):
 	"""Build the object from the options.conf file."""
         # Init INI parser
@@ -173,7 +180,13 @@ class Config(OrderedDict):
 
         basename:
 
-    TODO: metadata with hostname, modules, description
+        meta: dictionary with metadata.
+            hostname
+            author
+            date
+            description
+            keywords
+            modules
     """
     @classmethod
     def from_file(cls, path):
@@ -247,6 +260,22 @@ class ConfigList(list):
     """
     List of Config object. It's usually initialized from a directory containing .ac files.
     """
+    @classmethod
+    def from_mydirs(cls, dir_basenames):
+        """
+        Initialize ConfiList from abiconf directories.
+
+        Args:
+            dir_basenames: List with directory basenames e.g. ["clusters"]
+        """
+        root = os.path.join(os.path.dirname(__file__), "..")
+
+        new = ConfigList()
+        for d in dir_basenames:
+            dirpath = os.path.join(root, d)
+            new.extend(cls.from_dir(dirpath))
+        return new
+
     @classmethod
     def from_dir(cls, top):
 	"""Parse all .ac files starting located inside directory top."""

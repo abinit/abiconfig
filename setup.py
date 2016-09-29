@@ -32,6 +32,8 @@ classifiers=[
     "Topic :: Software Development :: Libraries :: Python Modules"
 ],
 
+print(find_packages())
+
 
 setup(name='abiconfig',
       version='0.0.1',

@@ -1,5 +1,14 @@
-
-
+#---
+#{
+#"hostname": "zenobe",
+#"author": "M. Giantomassi",
+#"date":
+#"keywords": [""],
+#"description": "",
+#"modules": [
+#  ]
+#}
+#---
 
 with_mpi_prefix="/softs/intel/impi/4.1.3.045/intel64/"
 
@@ -11,7 +20,6 @@ with_linalg_flavor="mkl+scalapack"
 with_linalg_incs='-I$(MKLROOT)/include'
 with_linalg_libs='-L$(MKLROOT)/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lmkl_blacs_intelmpi_lp64 -lpthread -lm'
 
-#with_fft_flavor="dfti"
 with_fft_flavor="fftw3"
 with_fft_incs='-I$(MKLROOT)/include'
 with_fft_libs='-L$(MKLROOT)/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lmkl_blacs_intelmpi_lp64 -lpthread -lm'

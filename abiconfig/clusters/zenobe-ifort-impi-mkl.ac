@@ -2,30 +2,33 @@
 #{
 #"hostname": "zenobe",
 #"author": "M. Giantomassi",
-#"date": "foo",
-#"description": "hello",
-#"keywords": ["intel", "mkl", "scalapack"],
-#"modules": [
-#  ]
+#"date": "2016-09-30",
+#"description": "Configuration file for zenobe. Uses intel, intel-mpi and mkl with scalapack",
+#"keywords": ["linux", "intel", "mpi", "mkl", "scalapack"],
+#"modules": []
 #}
 #---
 
+# Parallelism
 with_mpi_prefix="/softs/intel/impi/4.1.3.045/intel64/"
-
 enable_mpi=yes
 enable_mpi_io=yes
 enable_openmp=no
 
+FCFLAGS="-O2 -g -extend-source -vec-report0 -noaltparam -nofpscomp"
+# More aggressive optimization + AVX 
+#FCFLAGS="-O3 -g -extend-source -vec-report0 -noaltparam -nofpscomp -axCORE-AVX2 -xAVX"
+
+# BLAS/LAPACK/Scalapack with MKL
 with_linalg_flavor="mkl+scalapack"
 with_linalg_incs='-I$(MKLROOT)/include'
 with_linalg_libs='-L$(MKLROOT)/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lmkl_blacs_intelmpi_lp64 -lpthread -lm'
 
+# FFT with MKL-FFTW3
 with_fft_flavor="fftw3"
 with_fft_incs='-I$(MKLROOT)/include'
 with_fft_libs='-L$(MKLROOT)/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lmkl_blacs_intelmpi_lp64 -lpthread -lm'
 
-with_trio_flavor="netcdf+etsf_io"
+# Activate netcdf/libxc fallbacks
+with_trio_flavor="netcdf"
 with_dft_flavor="libxc"
-
-FCFLAGS="-O2 -g -extend-source -vec-report0 -noaltparam -nofpscomp"
-#FCFLAGS="-O3 -g -extend-source -vec-report0 -noaltparam -nofpscomp -axCORE-AVX2 -xAVX"

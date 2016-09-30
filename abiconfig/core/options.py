@@ -7,6 +7,7 @@ import json
 
 from collections import OrderedDict, defaultdict
 from pprint import pformat
+from abiconfig.core.utils import is_string, marquee
 from abiconfig.core.termcolor import cprint
 
 
@@ -150,7 +151,6 @@ class AbinitConfigureOptions(OrderedDict):
     def from_myoptions_conf(cls):
         """Read configure options from my internal copy of options.conf"""
         options_conf = os.path.join(os.path.dirname(__file__), "options.conf")
-        #print("Reading configure options from %s" % options_conf)
         return cls.from_file(options_conf)
 
     @classmethod
@@ -201,7 +201,7 @@ class Config(OrderedDict):
         with open(path, "rt") as fh:
             lines = fh.readlines()
 
-            # Read metadata.
+            # Read header with metadata.
             inmeta, meta = 0, []
             for line in lines:
                 if line.startswith("#---"): inmeta += 1
@@ -209,7 +209,12 @@ class Config(OrderedDict):
                 if inmeta and not line.startswith("#---"):
                     meta.append(line.replace("#", "", 1))
 
-            new._parse_meta("".join(meta))
+            try:
+                new._parse_meta("".join(meta))
+            except:
+                # FIXME: This is to support config file with metadata (e.g. buildbot ac files)
+                raise
+                pass
 
             for line in lines:
                 line = line.strip()
@@ -242,12 +247,33 @@ class Config(OrderedDict):
         errors = []
         eapp = errors.append
         if not self.meta: eapp("Empty metadata section")
-        required = ["hostname", "author", "date", "description", "keywords", "modules"]
-        for key in required:
+
+        def is_string_list(obj):
+            return isinstance(obj, (list, tuple)) and all(is_string(s) for s in obj)
+
+        from datetime import datetime
+        def is_valid_date(obj):
+            """Want date in the format `2011-12-24`"""
+            if not is_string(obj): return False
+            datetime.strptime(obj, "%Y-%m-%d")
+            return True
+
+        # Poor-man validation
+        reqkey_validator = [
+            ("hostname", is_string),
+            ("author", is_string),
+            ("date", is_valid_date),
+            ("description", is_string),
+            ("keywords", is_string_list),
+            ("modules", is_string_list),
+        ]
+        for key, validator in reqkey_validator:
             if key not in self.meta:
                 eapp("Missing key: %s" % key)
+            else:
+                if not validator(self.meta[key]):
+                    eapp("Wrong value for key: %s. Got type: %s" % (key, type(self.meta[key])))
 
-        # TODO: Additional tests
         if errors:
             raise ValueError("Wrong metadata section in file: %s\n%s" % (self.path, "\n".join(errors)))
 
@@ -279,19 +305,31 @@ class ConfigList(list):
     @classmethod
     def from_dir(cls, top):
 	"""Parse all .ac files starting located inside directory top."""
-        configs = cls()
+        new = cls()
 
         for dirpath, dirnames, filenames in os.walk(top):
             for f in filenames:
                 if not f.endswith(".ac"): continue
                 path = os.path.join(dirpath, f)
                 try:
-		    configs.append(Config.from_file(path))
+		    new.append(Config.from_file(path))
                 except Exception as exc:
                     cprint("Exception while parsing %s:\n%s" % (path, str(exc)), "red")
                     raise
 
-        return configs
+        return new
+
+    @classmethod
+    def from_files(cls, files):
+        new = cls()
+        for f in files:
+            if not f.endswith(".ac"): continue
+            try:
+                new.append(Config.from_file(f))
+            except Exception as exc:
+                cprint("Exception while parsing %s:\n%s" % (f, str(exc)), "red")
+                raise
+        return new
 
     def check(self, options):
         # Init mapping option.name --> [(config0.path, value0), (config1.path, value1), ...]
@@ -299,6 +337,7 @@ class ConfigList(list):
         #       - empty list --> the option is never used.
         #       - non-empty list --> the option is used in len(list) files.
         #         An additional check on the values may be required at the end.
+        retcode = 0
         optmap = {optname: [] for optname in options}
 
         # Mapping: config.path --> list_of_errors
@@ -316,6 +355,7 @@ class ConfigList(list):
                 if name in builtin_opts or name.startswith("fcflags_opt"): continue
                 if name not in options:
                     config_errors[conf.path].append("Unknown option: %s" % name)
+                    retcode += 1
                     continue
                 opt = options[name]
                 #if opt.status in ("dropped", "removed"):
@@ -325,9 +365,10 @@ class ConfigList(list):
 
         # Print errors detected in configuration files.
         if config_errors:
+            retcode += 1
             cprint("Found %d erroneous configuration files" % len(config_errors), "red")
             for path, errors in config_errors.items():
-                cprint("In configuration file: %s" % path, "yellow")
+                cprint("In configuration file: %s" % path, "red")
                 for i, err in enumerate(errors):
                     print("[%d] %s" % (i, err))
                 print(90 * "-")
@@ -337,12 +378,13 @@ class ConfigList(list):
         for name, tuples in optmap.items():
             #count[name] = len(tuples)
             if not tuples:
-                cprint("%s is never used" % name, "yellow")
+                retcode += 1
+                cprint("%s is never used" % name, "magenta")
             else:
                 #print("%s is used in %s configuration files" % (name, len(tuples)))
                 opt = options[name]
                 if opt.values:
-		    # Here I test if all values are tested in the config file.
+		    # Test if all values are tested in the config file.
                     optval_usage[name] = {v: [] for v in opt.values}
                     #print(d[name])
                     for path, val in tuples:
@@ -357,10 +399,12 @@ class ConfigList(list):
         for name, d in optval_usage.items():
             if all(l for l in d.values()): continue
 	    i += 1
-	    if i == 1: cprint("The following values are never used in the config files", "yellow")
-            print("[%s]" % name)
+	    if i == 1:
+                print(" ")
+                cprint("The following values are never used in the config files", "yellow")
+                retcode += 1
+            cprint("[%s]" % name, "yellow")
             for k, l in d.items():
-                if not l: print(k)
+                if not l: cprint(k, "yellow")
 
-        retcode = 0
         return retcode

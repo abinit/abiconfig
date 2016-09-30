@@ -15,6 +15,7 @@ from abiconfig.core.options import AbinitConfigureOptions, ConfigList
 def abiconf_opts(cliopts, confopts, configs):
     """List available configure options."""
     for opt in confopts.values():
+        print(marquee(opt.name))
         print(opt)
     return 0
 
@@ -51,6 +52,12 @@ def abiconf_hostname(cliopts, confopts, configs):
     return 0
 
 
+def abiconf_list(cliopts, confopts, configs):
+    """List all configuration files."""
+    for i, config in enumerate(configs):
+        print("[%d] %s" % (i, config.path))
+
+
 def abiconf_keys(cliopts, confopts, configs):
     """Find configuration files containing keywords."""
     if cliopts.keys is None:
@@ -74,13 +81,13 @@ def abiconf_keys(cliopts, confopts, configs):
                 pprint(conf.meta)
     return 0
 
-def abiconf_find(cliopts, confopts, configs):
-    """Find configuration files matching a given condition."""
-    optname = cliopts.optname
-    for conf in configs:
-        if optname in conf:
-            print(conf[optname])
-    return 0
+#def abiconf_find(cliopts, confopts, configs):
+#    """Find configuration files matching a given condition."""
+#    optname = cliopts.optname
+#    for conf in configs:
+#        if optname in conf:
+#            print(conf[optname])
+#    return 0
 
 
 def abiconf_workon(cliopts, confopts, configs):
@@ -159,8 +166,8 @@ def main():
         return """\
 Usage example:
     abiconf.py hostname [HOST]                => Find conf files for this hostname HOST.
+    abiconf.py list                           => List all configuration files.
     abiconf.py keys intel mkl                 => Find configuration files with these keywords.
-    abiconf.py find                           =>
     abiconf.py opts                           => List available configure options.
     abiconf.py check [DIRorFILEs]             => Check configuration files.
     abiconf.py workon abiref_gnu_5.3_debug    =>
@@ -189,7 +196,10 @@ Usage example:
                             help="Find configuration file for this hostname. If not given hostname is autodetected.")
     p_hostname.add_argument("-s", "--show-hostnames", default=False, action="store_true", help="List available hostnames.")
 
-    # List configuration files containing these keywords.
+    # Subparser for list command.
+    p_list = subparsers.add_parser('list', parents=[copts_parser], help=abiconf_list.__doc__)
+
+    # Subparser for keys command.
     p_keys = subparsers.add_parser('keys', parents=[copts_parser], help=abiconf_hostname.__doc__)
     p_keys.add_argument("keys", nargs="?", default=None,
                             help="Find configuration files with these keywords. "
@@ -200,10 +210,11 @@ Usage example:
 
     # Subparser for check command.
     p_check = subparsers.add_parser('check', parents=[copts_parser], help=abiconf_check.__doc__)
+    p_check.add_argument('paths', nargs="+", default=None, help="")
 
     # Subparser for find command.
-    p_find = subparsers.add_parser('find', parents=[copts_parser], help=abiconf_find.__doc__)
-    p_find.add_argument('optname', default=None, help="Option name.")
+    #p_find = subparsers.add_parser('find', parents=[copts_parser], help=abiconf_find.__doc__)
+    #p_find.add_argument('optname', default=None, help="Option name.")
 
     # Subparser for workon command.
     p_workon = subparsers.add_parser('workon', parents=[copts_parser], help=abiconf_workon.__doc__)
@@ -218,11 +229,25 @@ Usage example:
     # Read configure options from my internal copy of options.conf
     confopts = AbinitConfigureOptions.from_myoptions_conf()
 
-    dir_basenames = ["clusters"]
-    configs = ConfigList.from_mydirs(dir_basenames)
-    #configs = ConfigList.from_dir(confdir)
-    if cliopts.verbose:
-        print("Found %d configuration files in `%s`" % (len(configs), dir_basenames))
+    if cliopts.command == "check":
+        # Either build configs from internal directories or from command-line arguments.
+        if cliopts.paths is None:
+            dir_basenames = ["clusters"]
+            configs = ConfigList.from_mydirs(dir_basenames)
+        else:
+            #print(cliopts.paths)
+            if len(cliopts.paths) == 1 and os.path.isdir(cliopts.paths[0]):
+                # Directory with files.
+                configs = ConfigList.from_dir(cliopts.paths[0])
+            else:
+                # List of files.
+                configs = ConfigList.from_files(cliopts.paths)
+
+    else:
+        dir_basenames = ["clusters"]
+        configs = ConfigList.from_mydirs(dir_basenames)
+        if cliopts.verbose:
+            print("Found %d configuration files in `%s`" % (len(configs), dir_basenames))
 
     # Dispatch.
     return globals()["abiconf_" + cliopts.command](cliopts, confopts, configs)

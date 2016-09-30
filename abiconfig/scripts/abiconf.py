@@ -263,7 +263,7 @@ Usage example:
 
     # Subparser for opts command.
     p_opts = subparsers.add_parser('opts', parents=[copts_parser], help=abiconf_opts.__doc__)
-    p_opts.add_argument('optnames', nargs="+", default=None, help="Select options to show")
+    p_opts.add_argument('optnames', nargs="?", default=None, help="Select options to show")
 
     # Subparser for coverage command.
     p_coverage = subparsers.add_parser('coverage', parents=[copts_parser], help=abiconf_coverage.__doc__)

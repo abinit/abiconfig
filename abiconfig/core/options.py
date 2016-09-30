@@ -213,7 +213,7 @@ class Config(OrderedDict):
                 new._parse_meta("".join(meta))
             except:
                 # FIXME: This is to support config file with metadata (e.g. buildbot ac files)
-                raise
+                #raise
                 pass
 
             for line in lines:
@@ -331,7 +331,7 @@ class ConfigList(list):
                 raise
         return new
 
-    def check(self, options):
+    def coverage(self, options, verbose=0):
         # Init mapping option.name --> [(config0.path, value0), (config1.path, value1), ...]
         # This dict is used to test if all the options are tested in the configuration files:
         #       - empty list --> the option is never used.

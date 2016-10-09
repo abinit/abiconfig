@@ -16,7 +16,7 @@
 #---
 
 # MPI/OpenMP
-with_mpi_prefix="/cm/shared/apps/openmpi/1.7.5/intel2013_sp1.1.106/"
+with_mpi_prefix="${MPI_HOME}"
 enable_mpi="yes"
 enable_mpi_io="yes"
 enable_openmp="no"

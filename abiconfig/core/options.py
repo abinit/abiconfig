@@ -19,6 +19,14 @@ def rmquotes(s):
     return s
 
 
+def get_actemplate_string():
+    """
+    Return string with autoconf template.
+    """
+    with open(os.path.join(os.path.dirname(__file__), "config-template.ac"), "rt") as f:
+        return f.read()
+
+
 class Option(object):
     """
     The recognized attributes are the following:

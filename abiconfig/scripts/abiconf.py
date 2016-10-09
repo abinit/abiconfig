@@ -8,9 +8,10 @@ import argparse
 import shutil
 
 from pprint import pprint
+from socket import gethostname
 from abiconfig.core.utils import get_ncpus, marquee, is_string
 from abiconfig.core.termcolor import cprint
-from abiconfig.core.options import AbinitConfigureOptions, ConfigList
+from abiconfig.core.options import AbinitConfigureOptions, ConfigList, get_actemplate_string
 
 
 def find_top_srctree(start_path, ntrials=10):
@@ -36,6 +37,18 @@ def find_top_srctree(start_path, ntrials=10):
             trial += 1
 
     raise RuntimeError("Cannot find the ABINIT source tree after %s trials" % ntrials)
+
+
+def abiconf_new(cliopts, confopts, configs):
+    """Generate new configuration file."""
+    template = get_actemplate_string()
+    new_filename = cliopts.new_filename
+    if new_filename is None:
+        new_filename = gethostname() + "-compiler-mpi-libs-extra.ac"
+
+    with open(new_filename, "wt") as f:
+        f.write(template)
+    return 0
 
 
 def abiconf_opts(cliopts, confopts, configs):
@@ -75,7 +88,6 @@ def abiconf_hostname(cliopts, confopts, configs):
         show_hostnames()
         return 0
 
-    from socket import gethostname
     hostname = gethostname() if cliopts.hostname is None else cliopts.hostname
     print("Finding configuration files for hostname: `%s`" % hostname)
     nfound = 0
@@ -223,6 +235,7 @@ Usage example:
     abiconf.py hostname [HOST]                => Find conf files for this hostname HOST.
     abiconf.py list                           => List all configuration files.
     abiconf.py keys intel mkl                 => Find configuration files with these keywords.
+    abiconf.py new [FILENAME]                 => Generate template file.
     abiconf.py opts                           => List available configure options.
     abiconf.py coverage [DIRorFILEs]          => coverage configuration files.
     abiconf.py workon abiref_gnu_5.3_debug    => Create build directory and compile the code using this
@@ -260,6 +273,10 @@ Usage example:
     p_keys.add_argument("keys", nargs="?", default=None,
                             help="Find configuration files with these keywords. "
                                  "Show available keywords if no value is provided.")
+
+    # Subparser for new command.
+    p_new = subparsers.add_parser('new', parents=[copts_parser], help=abiconf_new.__doc__)
+    p_new.add_argument('new_filename', nargs="?", default=None, help="Name of new configuration file.")
 
     # Subparser for opts command.
     p_opts = subparsers.add_parser('opts', parents=[copts_parser], help=abiconf_opts.__doc__)

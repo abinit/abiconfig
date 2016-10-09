@@ -41,5 +41,8 @@ setup(name='abiconfig',
       keywords=keywords,
       packages=find_packages(),
       scripts=glob(os.path.join("abiconfig", "scripts", "*.py")),
-      package_data={"abiconfig.core": ["*.conf"]},
+      package_data={
+            "abiconfig.core": ["*.conf", "*.ac"],
+            "abiconfig.clusters": ["*.ac"],
+        },
       )

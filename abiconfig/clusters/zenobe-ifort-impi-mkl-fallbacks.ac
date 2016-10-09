@@ -3,17 +3,17 @@
 #"hostname": "zenobe",
 #"author": "M. Giantomassi",
 #"date": "2016-09-30",
-#"description": "Configuration file for zenobe. Uses intel, intel-mpi and mkl with scalapack",
-#"keywords": ["linux", "intel", "mpi", "mkl", "scalapack"],
+#"description": "Configuration file for zenobe. Uses intel compilers, intel-mpi and mkl with scalapack",
+#"keywords": ["linux", "intel", "impi", "mkl", "scalapack"],
 #"modules": []
 #}
 #---
 
-# Parallelism
+# MPI/OpenMP
 with_mpi_prefix="/softs/intel/impi/4.1.3.045/intel64/"
-enable_mpi=yes
-enable_mpi_io=yes
-enable_openmp=no
+enable_mpi="yes"
+enable_mpi_io="yes"
+enable_openmp="no"
 
 FCFLAGS="-O2 -g -extend-source -vec-report0 -noaltparam -nofpscomp"
 # More aggressive optimization + AVX 
@@ -32,3 +32,6 @@ with_fft_libs='-L$(MKLROOT)/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -l
 # Activate netcdf/libxc fallbacks
 with_trio_flavor="netcdf"
 with_dft_flavor="libxc"
+
+# Use double precision in GW code
+enable_gw_dpc="yes"

@@ -1,0 +1,35 @@
+#---
+#{
+#"hostname": "lemaitre2",
+#"author": "M. Giantomassi",
+#"date": "2016-09-30",
+#"description": "Configuration file for lemaitre2. Uses intel compilers, openmpi and mkl (sequential)",
+#"keywords": ["linux", "intel", "openmpi", "mkl"],
+#"modules": ["openmpi/1.6.5/intel-13.0.1.117"]
+#}
+#---
+
+
+# MPI/OpenMP
+with_mpi_prefix='/usr/local/openmpi/1.6.5/intel-13.0.1.117'
+enable_mpi="yes"
+enable_mpi_io="yes"
+enable_openmp="no"
+
+
+# BLAS/LAPACK with MKL
+with_linalg_flavor="mkl"
+with_linalg_incs='-I$(MKLROOT)/include'
+with_linalg_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
+
+# FFT with MKL-FFTW3
+with_fft_flavor="fftw3"
+with_fft_incs='-I$(MKLROOT)/include'
+with_fft_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
+
+# Activate netcdf/libxc fallbacks
+with_trio_flavor="netcdf"
+with_dft_flavor="libxc"
+
+# Use double precision in GW code
+enable_gw_dpc="yes"

@@ -1,0 +1,42 @@
+#---
+#{
+#"hostname": "nic4",
+#"author": "M. Giantomassi",
+#"date": "2016-09-30",
+#"description": "Configuration file for nic4. Uses intel compilers, openmpi, mkl (sequential) and external netcdf4/hdf5",
+#"keywords": ["linux", "intel", "openmpi", "mkl", "hdf5"],
+#"modules": [
+#   "openmpi/1.7.5/intel2013_sp1.1.106",
+#   "intel/mkl/64/11.1/2013_sp1.1.106",
+#   "intel/mkl/64/11.1/2013_sp1.3.174",
+#   "hdf5/1.8.13/openmpi-1.7.5-intel2013_sp1.1.106",
+#   "netcdf/4.3.2/openmpi-1.7.5-intel2013_sp1.1.106"
+# ]
+#}
+#---
+
+# MPI/OpenMP
+with_mpi_prefix="/cm/shared/apps/openmpi/1.7.5/intel2013_sp1.1.106/"
+enable_mpi="yes"
+enable_mpi_io="yes"
+enable_openmp="no"
+
+# BLAS/LAPACK with MKL
+with_linalg_flavor="mkl"
+with_linalg_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
+
+
+# FFT with MKL-FFTW3
+with_fft_flavor="fftw3"
+with_fft_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
+
+# Activate netcdf fallback
+with_dft_flavor="libxc"
+
+# Use external hdf5/netcdf4. Flags are taken from nc-config.
+with_trio_flavor="netcdf"
+with_netcdf_incs="-I${NETCDFINCLUDE}"
+with_netcdf_libs="-L${NETCDFDIR} -lnetcdff -L${NETCDFDIR} -lnetcdf -lnetcdf"
+
+# Use double precision in GW code
+enable_gw_dpc="yes"

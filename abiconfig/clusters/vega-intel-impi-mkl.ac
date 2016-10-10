@@ -9,7 +9,6 @@
 #}
 #---
 
-
 # MPI/OpenMP
 enable_mpi="yes"
 enable_mpi_io="yes"
@@ -24,15 +23,12 @@ CXX="mpicxx"
 
 # BLAS/LAPACK with MKL (static)
 with_linalg_flavor="mkl"
-with_linalg_libs="-L${EBROOTIMKL}/mkl/lib/intel64 \
--Wl,--start-group -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group -lpthread -lm"
-
+with_linalg_libs="-L${EBROOTIMKL}/mkl/lib/intel64 -Wl,--start-group -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group -lpthread -lm"
 
 # FFT with MKL-FFTW3 (static)
 with_fft_flavor="fftw3"
 with_fft_incs="-I${EBROOTIMKL}/mkl/include"
-with_fft_libs="-L${EBROOTIMKL}/mkl/lib/intel64 \
--Wl,--start-group -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group -lpthread -lm"
+with_fft_libs="-L${EBROOTIMKL}/mkl/lib/intel64 -Wl,--start-group -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group -lpthread -lm"
 
 # Activate netcdf/libxc fallbacks
 with_trio_flavor="netcdf"

@@ -224,6 +224,12 @@ class Config(OrderedDict):
                 #raise
                 pass
 
+            # FIXME: Add support for
+            """
+            with_linalg_libs="-L${EBROOTIMKL}/mkl/lib/intel64 \
+                -Wl,--start-group -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group -lpthread -lm"
+            """
+
             for line in lines:
                 line = line.strip()
                 if line.startswith("#") or not line: continue

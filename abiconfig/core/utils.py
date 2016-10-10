@@ -8,7 +8,7 @@ def get_ncpus():
     # Python 2.6+
     # May raise NonImplementedError
     try:
-	import multiprocessing
+        import multiprocessing
         return multiprocessing.cpu_count()
     except (ImportError, NotImplementedError):
         pass

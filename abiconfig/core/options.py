@@ -143,7 +143,7 @@ except ImportError:
 class MyConfigParser(configparser.ConfigParser):
 
     def myget(self, section, option, default):
-	"""Return default if option is not present in section."""
+        """Return default if option is not present in section."""
         try:
             return self.get(section, option)
         except configparser.NoOptionError:
@@ -163,7 +163,7 @@ class AbinitConfigureOptions(OrderedDict):
 
     @classmethod
     def from_file(cls, path):
-	"""Build the object from the options.conf file."""
+        """Build the object from the options.conf file."""
         # Init INI parser
         parser = MyConfigParser()
         parser.read(path)
@@ -198,7 +198,7 @@ class Config(OrderedDict):
     """
     @classmethod
     def from_file(cls, path):
-	"""
+        """
         Initialize the object from an .ac file.
         """
         path = os.path.abspath(path)
@@ -252,7 +252,7 @@ class Config(OrderedDict):
         """String representation."""
         lines = [self.path, " "]
         lines.extend([pformat(self.meta, indent=2), " "])
-	lines.extend("%s=%s" % (k, v) for k, v in self.items())
+        lines.extend("%s=%s" % (k, v) for k, v in self.items())
         return "\n".join(lines)
 
     def _parse_meta(self, s):
@@ -333,7 +333,7 @@ class ConfigList(list):
 
     @classmethod
     def from_dir(cls, top):
-	"""Parse all .ac files starting located inside directory top."""
+        """Parse all .ac files starting located inside directory top."""
         new = cls()
 
         for dirpath, dirnames, filenames in os.walk(top):
@@ -341,7 +341,7 @@ class ConfigList(list):
                 if not f.endswith(".ac"): continue
                 path = os.path.join(dirpath, f)
                 try:
-		    new.append(Config.from_file(path))
+                    new.append(Config.from_file(path))
                 except Exception as exc:
                     cprint("Exception while parsing %s:\n%s" % (path, str(exc)), "red")
                     raise
@@ -427,8 +427,8 @@ class ConfigList(list):
         i = 0
         for name, d in optval_usage.items():
             if all(l for l in d.values()): continue
-	    i += 1
-	    if i == 1:
+            i += 1
+            if i == 1:
                 print(" ")
                 cprint("The following values are never used in the config files", "yellow")
                 retcode += 1

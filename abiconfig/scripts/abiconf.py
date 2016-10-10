@@ -114,10 +114,11 @@ def abiconf_hostname(cliopts, confopts, configs):
     nfound = 0
     for conf in configs:
         # TODO: Should handle foo.bar.be case
-	if not (hostname in conf.meta["keywords"] or hostname in conf.basename): continue
+        if not (hostname in conf.meta["keywords"] or hostname in conf.basename): 
+            continue
         nfound += 1
         cprint(marquee(conf.basename), "yellow")
-	print(conf)
+        print(conf)
 
     if nfound == 0:
         cprint("No configuration file for `%s`. Will print internal list." % hostname, "red")
@@ -219,8 +220,8 @@ def abiconf_workon(cliopts, confopts, configs):
     # Look before you leap.
     if os.path.exists(workdir):
         if not cliopts.remove:
-	    cprint("Directory `%s` already exists. Returning" % workdir, "red")
-	    return 1
+            cprint("Directory `%s` already exists. Returning" % workdir, "red")
+            return 1
         else:
             shutil.rmtree(workdir)
 
@@ -246,17 +247,17 @@ def abiconf_workon(cliopts, confopts, configs):
         for module in conf.meta["modules"]:
             fh.write("module load %s\n" % module)
 
-	if has_nag: # pre_configure_nag.sh
-	    fh.write("sed -i -e 's/ -little/& \| -library/' -e 's/\-\\#\\#\\#/& -dryrun/' ../configure\n")
+        if has_nag: # pre_configure_nag.sh
+            fh.write("sed -i -e 's/ -little/& \| -library/' -e 's/\-\\#\\#\\#/& -dryrun/' ../configure\n")
         fh.write("../configure --with-config-file=./%s\n" % acfile)
-	if has_nag: # post_configure_nag.sh
-	    fh.write("sed -i -e 's/\t\$.FCFLAGS. \\//' src/98_main/Makefile\n")
+        if has_nag: # post_configure_nag.sh
+            fh.write("sed -i -e 's/\t\$.FCFLAGS. \\//' src/98_main/Makefile\n")
         fh.write("make -j%d > make.stdout 2> make.stderr\n" % nthreads)
 
-	fh.seek(0)
-	cprint("Executing:", "yellow")
-	for line in fh.readlines():
-	    print(line)
+        fh.seek(0)
+        cprint("Executing:", "yellow")
+        for line in fh.readlines():
+            print(line)
 
     # The code gets stuck here if -jN. Should find better approach
     retcode = os.system("bash %s" % script)

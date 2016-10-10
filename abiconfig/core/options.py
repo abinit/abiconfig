@@ -221,7 +221,7 @@ class Config(OrderedDict):
                 new._parse_meta("".join(meta))
             except:
                 # FIXME: This is to support config file with metadata (e.g. buildbot ac files)
-                #raise
+                raise
                 pass
 
             # FIXME: Add support for
@@ -265,6 +265,12 @@ class Config(OrderedDict):
         def is_string_list(obj):
             return isinstance(obj, (list, tuple)) and all(is_string(s) for s in obj)
 
+        def is_description(obj):
+            if is_string(obj): return True
+            if isinstance(obj, (list, tuple)):
+                return all(is_string(s) for s in obj)
+            return False
+
         from datetime import datetime
         def is_valid_date(obj):
             """Want date in the format `2011-12-24`"""
@@ -277,7 +283,7 @@ class Config(OrderedDict):
             ("hostname", is_string),
             ("author", is_string),
             ("date", is_valid_date),
-            ("description", is_string),
+            ("description", is_description),
             ("keywords", is_string_list),
             ("modules", is_string_list),
         ]
@@ -290,6 +296,15 @@ class Config(OrderedDict):
 
         if errors:
             raise ValueError("Wrong metadata section in file: %s\n%s" % (self.path, "\n".join(errors)))
+
+        # description could be either a string or a list of strings.
+        # If list, a newline is added at the end of each item and a single string is built.
+        if isinstance(self.meta["description"], (list, tuple)):
+            lines = []
+            for l in self.meta["description"]:
+                if not l.endswith("\n"): l += "\n"
+                lines.append(l)
+            self.meta["description"] = "".join(lines)
 
         # ADd hostname to keywords.
         if self.meta["hostname"] not in self.meta["keywords"]:

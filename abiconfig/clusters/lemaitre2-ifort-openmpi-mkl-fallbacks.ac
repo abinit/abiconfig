@@ -16,12 +16,13 @@ enable_mpi_io="yes"
 enable_openmp="no"
 
 
-# BLAS/LAPACK with MKL
+# BLAS/LAPACK provided by MKL (dynamic linking)
+# See https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor
 with_linalg_flavor="mkl"
 with_linalg_incs='-I$(MKLROOT)/include'
 with_linalg_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
 
-# FFT with MKL-FFTW3
+# FFTW3 interface provided by MKL (dynamic linking)
 with_fft_flavor="fftw3"
 with_fft_incs='-I$(MKLROOT)/include'
 with_fft_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"

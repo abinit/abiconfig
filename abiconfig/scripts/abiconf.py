@@ -251,6 +251,8 @@ def abiconf_workon(cliopts, confopts, configs):
 	for line in fh.readlines():
 	    print(line)
 
+    # The code gets stuck here if -jN!
+    # Should find better approach
     retcode = os.system("bash %s" % script)
     stderr_path = os.path.join(workdir, "make.stderr")
     with open(stderr_path, "rt") as fh:

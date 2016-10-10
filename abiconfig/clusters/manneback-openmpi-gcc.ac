@@ -3,11 +3,14 @@
 #"hostname": "manneback",
 #"author": "M. Giantomassi",
 #"date": "2016-09-30",
-#"description": "Configuration file for manneback (very simple configuration)",
-#"keywords": ["linux", "gcc", "openmpi"],
+#"description": [
+#   "Configuration file for manneback based on easy-build and gomp toolchain",
+#   "(very simple configuration because the modules available are rather limited.)"
+#],
+#"keywords": ["linux", "gcc", "openmpi", "easybuild"],
 #"modules": ["gompi/2016a",
 #            "FFTW/3.3.4-gompi-2016a"
-# ]
+#]
 #}
 #---
 

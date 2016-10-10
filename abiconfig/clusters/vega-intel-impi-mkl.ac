@@ -3,7 +3,7 @@
 #"hostname": "vega",
 #"author": "M. Giantomassi",
 #"date": "2016-09-30",
-#"description": "Configuration file for vega. Uses easybuild with intel compilers, impi and mkl (sequential)",
+#"description": "Configuration file for vega. Uses easybuild with intel compilers, impi and mkl",
 #"keywords": ["linux", "intel", "impi", "mkl", "easybuild"],
 #"modules": ["intel/2015a"]
 #}
@@ -21,11 +21,12 @@ CPP="mpiicc -E"
 CXX="mpicxx"
 
 
-# BLAS/LAPACK with MKL (static)
+# BLAS/LAPACK provided by MKL (static linking)
+# See https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor
 with_linalg_flavor="mkl"
 with_linalg_libs="-L${EBROOTIMKL}/mkl/lib/intel64 -Wl,--start-group -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group -lpthread -lm"
 
-# FFT with MKL-FFTW3 (static)
+# FFTW3 interface provided by MKL (static linking)
 with_fft_flavor="fftw3"
 with_fft_incs="-I${EBROOTIMKL}/mkl/include"
 with_fft_libs="-L${EBROOTIMKL}/mkl/lib/intel64 -Wl,--start-group -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group -lpthread -lm"

@@ -1,0 +1,42 @@
+#---
+#{
+#"hostname": "vega",
+#"author": "M. Giantomassi",
+#"date": "2016-09-30",
+#"description": "Configuration file for vega. Uses easybuild with intel compilers, impi and mkl (sequential)",
+#"keywords": ["linux", "intel", "impi", "mkl", "easybuild"],
+#"modules": ["intel/2015a"]
+#}
+#---
+
+
+# MPI/OpenMP
+enable_mpi="yes"
+enable_mpi_io="yes"
+enable_64bit_flags="yes"
+enable_openmp="no"
+
+FC="mpiifort"
+CC="mpiicc"
+CPP="mpiicc -E"
+CXX="mpicxx"
+
+
+# BLAS/LAPACK with MKL (static)
+with_linalg_flavor="mkl"
+with_linalg_libs="-L${EBROOTIMKL}/mkl/lib/intel64 \
+-Wl,--start-group -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group -lpthread -lm"
+
+
+# FFT with MKL-FFTW3 (static)
+with_fft_flavor="fftw3"
+with_fft_incs="-I${EBROOTIMKL}/mkl/include"
+with_fft_libs="-L${EBROOTIMKL}/mkl/lib/intel64 \
+-Wl,--start-group -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group -lpthread -lm"
+
+# Activate netcdf/libxc fallbacks
+with_trio_flavor="netcdf"
+with_dft_flavor="libxc"
+
+# Use double precision in GW code
+enable_gw_dpc="yes"

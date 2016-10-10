@@ -1,12 +1,21 @@
+#---
+#{
+#"hostname": "jureca",
+#"author": "M. Giantomassi",
+#"date": "2016-09-30",
+#"description": "Configuration file for jureca. Uses intel compilers, openmpi and mkl (sequential)",
+#"keywords": ["linux", "intel", "openmpi", "mkl"],
+#"modules": ["intel-para/2015.07"]
+#}
+#---
+
+# I had to install my own software on jureca.
 #export PATH=$HOME/local_jureca/bin:$PATH
 #export LD_LIBRARY_PATH=$HOME/local_jureca/lib:$LD_LIBRARY_PATH
 #export C_INCLUDE_PATH=$HOME/local_jureca/lib:$C_INCLUDE_PATH
-#
 ##export PYTHONHOME=%HOME/local_jureca
 #export HDF5_DIR=$HOME/local_jureca
 #export NETCDF4_DIR=$HOME/local_jureca
-#
-#module load intel-para/2015.07
 
 FC="mpif90"
 CC="mpicc"
@@ -15,7 +24,6 @@ CXX="mpicxx"
 FCFLAGS_EXTRA="-g -O2 -align all"
 enable_optim="yes"
 enable_64bit_flags="yes"
-fcflags_opt_20_datashare='-O0'
 
 enable_mpi="yes"
 enable_mpi_io="yes"
@@ -26,7 +34,6 @@ enable_mpi_io="yes"
 #with_linalg_flavor="mkl+scalapack+elpa"
 #with_linalg_incs="-I"${MKLROOT}"/mkl/include -I"${ELPA_INCLUDE}
 #with_linalg_libs="-L"${MKLROOT}"/mkl/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -lmkl_blacs_intelmpi_lp64 -liomp5 -lpthread -lm -L"${ELPA_ROOT}"/lib -lelpa"
-
 
 with_linalg_flavor="mkl+scalapack"
 with_linalg_incs="-I"${MKLROOT}"/mkl/include -I"${ELPA_MODULES}

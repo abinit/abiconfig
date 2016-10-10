@@ -1,0 +1,52 @@
+#---
+#{
+#"hostname": "dragon1",
+#"author": "M. Giantomassi",
+#"date": "2016-09-30",
+#"description": "Configuration file for dragon1. Uses intel compilers, openmpi and mkl",
+#"keywords": ["linux", "intel", "mpich", "mkl"],
+#"modules": ["module load mpich/3.0.4/intel-13.0.0"]
+#}
+#---
+
+# TODO: some tests in mpiio are failing
+
+
+# MPI/OpenMP
+#with_mpi_prefix="${EBROOTOPENMPI}"
+with_mpi_prefix="${MPI_HOME}"
+enable_mpi="yes"
+enable_mpi_io="yes"
+enable_openmp="no"
+
+
+# BLAS/LAPACK from Openblas
+#module load goolf/1.6.10
+# See https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor
+#with_linalg_flavor="custom"
+#with_linalg_libs="-L${EBROOTOPENBLAS}/lib -lopenblas -lpthread"
+
+# BLAS/LAPACK provided by MKL (dynamic linking)
+# See https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor
+with_linalg_flavor="mkl"
+with_linalg_incs='-I$(MKLROOT)/include'
+with_linalg_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
+
+# FFTW3 interface provided by MKL (dynamic linking)
+with_fft_flavor="fftw3"
+with_fft_incs='-I$(MKLROOT)/include'
+with_fft_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
+
+
+# FFTW3 for FFT
+#with_fft_flavor="fftw3"
+#with_fft_incs="-I${EBROOTFFTW}/include"
+#with_fft_libs="-L${EBROOTFFTW}/lib -lfftw3 -lfftw3f"
+
+
+# Activate netcdf/libxc fallbacks
+with_trio_flavor="netcdf"
+with_dft_flavor="libxc"
+
+# Use double precision in GW code
+enable_gw_dpc="yes"

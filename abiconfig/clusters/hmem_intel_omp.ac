@@ -1,0 +1,35 @@
+#module load openmpi/1.5.3/intel-12.0.0.084
+
+enable_64bit_flags="yes"
+#enable_debug="yes"
+enable_mpi="yes"
+enable_mpi_io="yes"
+enable_gw_dpc="yes"
+
+#FC="/opt/intel/composerxe-2011/pkg_bin/intel64/ifort"
+
+
+with_mpi_prefix="/usr/local/openmpi/1.5.3-intel/"
+#with_mpi_incs="-I/usr/local/openmpi/1.5.3-intel/include"
+#with_mpi_libs="-L/usr/local/openmpi/1.5.3-intel/lib/ -lmpichf90 -lmpichf90 -lmpich -lopa -lmpl -lpmi -lrt -lpthread"
+
+with_fft_flavor="dfti"
+#with_fft_incs="-I/opt/intel/composerxe-2011/mkl/include/fftw/"
+#with_fft_libs="-L/opt/intel/composerxe-2011/mkl/lib/intel64 -lmkl_blas95_lp64 -lmkl_lapack95_lp64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread"
+#
+with_fft_incs="-I${MKLROOT}/include"
+#with_fft_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel -lmkl_intel_thread -lmkl_core -lmkl_intel -lmkl_intel_thread -lmkl_core"
+with_fft_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
+
+with_linalg_flavor="mkl"
+#with_linalg_incs="-I/opt/intel/composerxe-2011/mkl/include/intel64"
+#with_linalg_libs="-L/opt/intel/composerxe-2011/mkl/lib/intel64 -lmkl_lapack95_lp64 -lmkl_blas95_lp64 -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64 -lmkl_intel_lp64 -lmkl_intel -lmkl_intel_thread -lmkl_core"
+with_linalg_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
+#with_linalg_libs="-L${MKLROOT}/lib/intel64 -lmkl_lapack95_lp64 -lmkl_blas95_lp64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -lmkl_intel_lp64"
+
+
+#FCFLAGS="-O2 -g -openmp -xHost -ip -no-prec-div -unroll-aggressive -msse3 -opt-prefetch -simd -vec-report0 -funroll-loops -mcmodel=large -static-intel"
+#FCFLAGS="-O3 -g -openmp -vec-report0 -funroll-loops -mcmodel=large -static-intel"
+
+with_dft_flavor="libxc"
+with_trio_flavor="netcdf"

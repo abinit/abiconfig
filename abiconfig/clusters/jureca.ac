@@ -1,0 +1,46 @@
+#export PATH=$HOME/local_jureca/bin:$PATH
+#export LD_LIBRARY_PATH=$HOME/local_jureca/lib:$LD_LIBRARY_PATH
+#export C_INCLUDE_PATH=$HOME/local_jureca/lib:$C_INCLUDE_PATH
+#
+##export PYTHONHOME=%HOME/local_jureca
+#export HDF5_DIR=$HOME/local_jureca
+#export NETCDF4_DIR=$HOME/local_jureca
+#
+#module load intel-para/2015.07
+
+FC="mpif90"
+CC="mpicc"
+CXX="mpicxx"
+
+FCFLAGS_EXTRA="-g -O2 -align all"
+enable_optim="yes"
+enable_64bit_flags="yes"
+fcflags_opt_20_datashare='-O0'
+
+enable_mpi="yes"
+enable_mpi_io="yes"
+
+#enable_openmp="yes"
+#FCFLAGS_OPENMP="-openmp"
+
+#with_linalg_flavor="mkl+scalapack+elpa"
+#with_linalg_incs="-I"${MKLROOT}"/mkl/include -I"${ELPA_INCLUDE}
+#with_linalg_libs="-L"${MKLROOT}"/mkl/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -lmkl_blacs_intelmpi_lp64 -liomp5 -lpthread -lm -L"${ELPA_ROOT}"/lib -lelpa"
+
+
+with_linalg_flavor="mkl+scalapack"
+with_linalg_incs="-I"${MKLROOT}"/mkl/include -I"${ELPA_MODULES}
+with_linalg_libs="-L"${MKLROOT}"/mkl/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lmkl_blacs_intelmpi_lp64 -lpthread -lm"
+# -L"${ELPA_ROOT}"/lib -lelpa"
+
+with_fft_flavor="fftw3"
+with_fft_incs="-I"${EBROOTFFTW}"/include"
+with_fft_libs="-L"${MKLROOT}"/mkl/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"
+
+#with_dft_flavor="libxc+atompaw"
+#with_netcdf_incs="-I"${EBROOTNETCDF}"/include -I"${EBROOTNETCDFMINFORTRAN}"/include"
+#with_netcdf_libs="-L"${EBROOTNETCDF}"/lib64 -lnetcdf -L"${EBROOTNETCDFMINFORTRAN}"/lib -lnetcdff"
+#with_libxc_incs="-I"${EBROOTLIBXC}"/include"
+#with_libxc_libs="-L"${EBROOTLIBXC}"/lib -lxcf90 -lxc"
+
+with_trio_flavor="netcdf+etsf_io"

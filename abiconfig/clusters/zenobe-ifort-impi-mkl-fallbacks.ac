@@ -11,6 +11,9 @@
 #   }
 #---
 
+#install architecture-independent files in PREFIX
+#prefix="~/local/"
+
 # MPI/OpenMP
 with_mpi_prefix="/softs/intel/impi/4.1.3.045/intel64/"
 enable_mpi="yes"

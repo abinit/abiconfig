@@ -9,6 +9,9 @@
 #}
 #---
 
+#install architecture-independent files in PREFIX
+#prefix="~/local/"
+
 # I had to install my own software on jureca.
 #export PATH=$HOME/local_jureca/bin:$PATH
 #export LD_LIBRARY_PATH=$HOME/local_jureca/lib:$LD_LIBRARY_PATH

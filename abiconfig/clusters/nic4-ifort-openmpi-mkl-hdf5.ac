@@ -15,6 +15,9 @@
 #}
 #---
 
+#install architecture-independent files in PREFIX
+#prefix="~/local/"
+
 # MPI/OpenMP
 with_mpi_prefix="${MPI_HOME}"
 enable_mpi="yes"

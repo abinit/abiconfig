@@ -114,7 +114,7 @@ def abiconf_hostname(cliopts, confopts, configs):
     nfound = 0
     for conf in configs:
         # TODO: Should handle foo.bar.be case
-        if not (hostname in conf.meta["keywords"] or hostname in conf.basename): 
+        if not (hostname in conf.meta["keywords"] or hostname in conf.basename):
             continue
         nfound += 1
         cprint(marquee(conf.basename), "yellow")
@@ -212,10 +212,10 @@ def abiconf_workon(cliopts, confopts, configs):
     # Script must be executed inside abinit source tree.
     #find_top_srctree(".", ntrials=0)
 
-    acfile = conf.basename
-    script = "_workon__" + confname + ".sh"
-    back = os.getcwd()
-    workdir = os.path.join(back, confname)
+    cwd = os.getcwd()
+    workdir = os.path.join(cwd, confname)
+    script = os.path.join(workdir, "workon_" + confname + ".sh")
+    acfile = os.path.join(workdir, conf.basename)
 
     # Look before you leap.
     if os.path.exists(workdir):
@@ -231,8 +231,8 @@ def abiconf_workon(cliopts, confopts, configs):
 
     # Create build directory, copy ac file.
     # generare shell script to load modules, run configure and make.
+    print("Creating directory", workdir)
     os.mkdir(workdir)
-    os.chdir(workdir)
     shutil.copy(conf.path, acfile)
 
     # Write shell script to start new with modules and run it.
@@ -255,20 +255,23 @@ def abiconf_workon(cliopts, confopts, configs):
         fh.write("make -j%d > make.stdout 2> make.stderr\n" % nthreads)
 
         fh.seek(0)
-        cprint("Executing:", "yellow")
+        cprint("abiconf script:", "yellow")
         for line in fh.readlines():
             print(line)
 
-    # The code gets stuck here if -jN. Should find better approach
-    retcode = os.system("bash %s" % script)
-    stderr_path = os.path.join(workdir, "make.stderr")
-    with open(stderr_path, "rt") as fh:
-        err = fh.read()
-        if err:
-            cprint("Errors found in %s" % stderr_path, "red")
-            cprint(err, "red")
+    retcode = 0
+    if options.make:
+	# The code gets stuck here if -jN. Should find better approach
+	os.chdir(workdir)
+	retcode = os.system(". %s" % script)
+	stderr_path = os.path.join(workdir, "make.stderr")
+	with open(stderr_path, "rt") as fh:
+	    err = fh.read()
+	    if err:
+		cprint("Errors found in %s" % stderr_path, "red")
+		cprint(err, "red")
+	os.chdir(cwd)
 
-    os.chdir(back)
     return retcode
 
 
@@ -346,6 +349,7 @@ Usage example:
     # Subparser for workon command.
     p_workon = subparsers.add_parser('workon', parents=[copts_parser], help=abiconf_workon.__doc__)
     p_workon.add_argument('confname', nargs="?", default=None, help="Configuration file to be used.")
+    p_workon.add_argument("-m", '--make', action="store_true", default=False, help="Run configure/make with -j threads.")
     p_workon.add_argument("-j", '--jobs', type=int, default=0, help="Number of threads used to compile/make.")
     p_workon.add_argument("-r", '--remove', default=False, action="store_true", help="Remove build directory.")
 

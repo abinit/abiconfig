@@ -12,6 +12,10 @@
 # TODO: some tests in mpiio are failing
 
 
+#install architecture-independent files in PREFIX
+#prefix="~/local/"
+
+
 # MPI/OpenMP
 #with_mpi_prefix="${EBROOTOPENMPI}"
 with_mpi_prefix="${MPI_HOME}"

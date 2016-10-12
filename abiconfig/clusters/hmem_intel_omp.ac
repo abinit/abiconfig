@@ -9,6 +9,9 @@
 #}
 #---
 
+#install architecture-independent files in PREFIX
+#prefix="~/local/"
+
 # MPI/OpenMP
 with_mpi_prefix="/usr/local/openmpi/1.5.3-intel/"
 enable_mpi="yes"

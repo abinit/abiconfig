@@ -9,6 +9,10 @@
 #}
 #---
 
+
+#install architecture-independent files in PREFIX
+#prefix="~/local/"
+
 # Note: mpif90 wraps gfortran and therefore we have to add the compatibility layer for MKL
 # In principle, one should the intel wrappers mpiifort ... but I was not able to 
 # tell the build system to use them. It seems that FC is not honored and 

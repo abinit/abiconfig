@@ -4,7 +4,7 @@
 #"author": "M. Giantomassi",
 #"date": "2016-09-30",
 #"description": "Configuration file for jureca. Uses intel compilers, openmpi and mkl (sequential)",
-#"keywords": ["linux", "intel", "openmpi", "mkl"],
+#"keywords": ["linux", "intel", "openmpi", "mkl", "scalapack"],
 #"modules": ["intel-para/2015.07"]
 #}
 #---

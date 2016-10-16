@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-""""""
+"""
+Provides commands to interact with the collection of abiconf configuration files
+and automate the compilation of Abinit on clusters.
+"""
 from __future__ import unicode_literals, division, print_function, absolute_import
 
 import sys
@@ -156,7 +159,7 @@ def abiconf_get(cliopts, confopts, configs):
 
 def abiconf_keys(cliopts, confopts, configs):
     """Find configuration files containing keywords."""
-    if cliopts.keys is None:
+    if cliopts.keys is None or not cliopts.keys:
         # Print list of available keywords.
         all_keys = set()
         for conf in configs:
@@ -216,7 +219,7 @@ def abiconf_workon(cliopts, confopts, configs):
             return 1
 
     # Script must be executed inside the abinit source tree.
-    find_top_srctree(".", ntrials=0)
+    #find_top_srctree(".", ntrials=0)
 
     cwd = os.getcwd()
     workdir = os.path.join(cwd, "_build_" + confname)
@@ -226,7 +229,7 @@ def abiconf_workon(cliopts, confopts, configs):
     # Look before you leap.
     if os.path.exists(workdir):
         if not cliopts.remove:
-            cprint("Build directory `%s` already exists. Use `-r to remote it`. Returning" % workdir, "red")
+            cprint("Build directory `%s` already exists. Use `-r to remove it`. Returning" % workdir, "red")
             return 1
         else:
             shutil.rmtree(workdir)
@@ -337,7 +340,7 @@ Usage example:
 
     # Subparser for keys command.
     p_keys = subparsers.add_parser('keys', parents=[copts_parser], help=abiconf_hostname.__doc__)
-    p_keys.add_argument("keys", nargs="?", default=None,
+    p_keys.add_argument("keys", nargs="*", default=None,
                             help="Find configuration files with these keywords. "
                                  "Show available keywords if no value is provided.")
 

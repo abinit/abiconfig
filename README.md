@@ -25,8 +25,8 @@ supposed to be used for high-performance calculations.
 
 For more advanced approaches to the installation of Abinit on clusters, see
 
-    spack
-    easybuild
+    [spack](https://github.com/LLNL/spack)
+    [easybuild](https://github.com/hpcugent/easybuild)
 -->
 
 Getting abiconfig
@@ -36,7 +36,7 @@ Getting abiconfig
 From pip
 --------
 
-The easiest way to install abiconf is to use `pip`, as follows::
+The easiest way to install abiconf is to use `pip`, as follows:
 
     pip install abiconf
 -->
@@ -45,9 +45,9 @@ From github
 -----------
 
 The developmental version is available at the [gitlab repo](https://gitlab.abinit.org/gmatteo/abiconfig).
-Clone the repo with::
+Clone the repo with:
 
-    git clone git@gitlab.abinit.org:gmatteo/abiconfig.git
+    git clone https://gitlab.abinit.org/gmatteo/abiconfig.git
 
 After cloning the source, cd to the abiconfig directory and type:
 

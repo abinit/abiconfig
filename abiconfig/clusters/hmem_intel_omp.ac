@@ -34,7 +34,6 @@ with_fft_incs="-I${MKLROOT}/include"
 with_fft_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
 #with_fft_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel -lmkl_intel_thread -lmkl_core -lmkl_intel -lmkl_intel_thread -lmkl_core"
 
-
 # Activate netcdf/libxc fallbacks
 with_dft_flavor="libxc"
 with_trio_flavor="netcdf"

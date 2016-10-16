@@ -29,12 +29,11 @@ enable_openmp="no"
 with_linalg_flavor="mkl"
 with_linalg_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
 
-
 # FFTW3 interface provided by MKL (dynamic linking)
 with_fft_flavor="fftw3"
 with_fft_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
 
-# Activate netcdf fallback
+# Activate libxc fallback
 with_dft_flavor="libxc"
 
 # Use external hdf5/netcdf4. Flags are taken from nc-config.

@@ -41,12 +41,10 @@ with_fft_flavor="fftw3"
 with_fft_incs='-I$(MKLROOT)/include'
 with_fft_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
 
-
 # FFTW3 for FFT
 #with_fft_flavor="fftw3"
 #with_fft_incs="-I${EBROOTFFTW}/include"
 #with_fft_libs="-L${EBROOTFFTW}/lib -lfftw3 -lfftw3f"
-
 
 # Activate netcdf/libxc fallbacks
 with_trio_flavor="netcdf"

@@ -18,7 +18,6 @@ enable_mpi="yes"
 enable_mpi_io="yes"
 enable_openmp="no"
 
-
 # BLAS/LAPACK provided by MKL (dynamic linking)
 # See https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor
 with_linalg_flavor="mkl"

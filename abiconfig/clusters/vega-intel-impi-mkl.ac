@@ -23,7 +23,6 @@ CC="mpiicc"
 CPP="mpiicc -E"
 CXX="mpicxx"
 
-
 # BLAS/LAPACK provided by MKL (static linking)
 # See https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor
 with_linalg_flavor="mkl"

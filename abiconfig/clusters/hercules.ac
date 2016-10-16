@@ -9,7 +9,6 @@
 #}
 #---
 
-
 #install architecture-independent files in PREFIX
 #prefix="~/local/"
 
@@ -33,7 +32,6 @@ enable_openmp="no"
 #CC="mpiicc -I${I_MPI_ROOT}/intel64/include" 
 #CPP="mpiicc -E"
 #CXX="mpicxx -I${I_MPI_ROOT}/intel64/include" 
-
 
 # BLAS/LAPACK provided by MKL (dynamic linking + compatibility layer for gcc)
 # See https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor

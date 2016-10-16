@@ -15,7 +15,6 @@
 #install architecture-independent files in PREFIX
 #prefix="~/local/"
 
-
 # MPI/OpenMP
 with_mpi_prefix="${MPIHOME}/intel64"
 enable_mpi="yes"
@@ -43,7 +42,6 @@ with_fft_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_intel_
 
 # Activate netcdf/libxc fallbacks
 with_trio_flavor="netcdf"
-
 with_dft_flavor="libxc"
 
 # Use double precision in GW code

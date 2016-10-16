@@ -27,17 +27,17 @@ enable_openmp="no"
 #with_linalg_flavor="mkl"
 #with_linalg_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
 
-
 # FFT with FFTW3
 # Manneback does not provide single precision
 #with_fft_flavor="fftw3"
 #with_fft_libs="-L${EBROOTFFTW}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
 
-# Activate netcdf fallback
+# Activate libxc fallback.
 with_dft_flavor="libxc"
 
-# Use external hdf5/netcdf4. Flags are taken from nc-config.
+# Activate netcdf fallback.
 with_trio_flavor="netcdf"
+# Use external hdf5/netcdf4. Flags are taken from nc-config.
 #with_netcdf_incs="-I${NETCDFINCLUDE}"
 #with_netcdf_libs="-L${NETCDFDIR} -lnetcdff -L${NETCDFDIR} -lnetcdf -lnetcdf"
 

@@ -249,10 +249,11 @@ def abiconf_workon(cliopts, confopts, configs):
 
         if has_nag: # pre_configure_nag.sh
             fh.write("sed -i -e 's/ -little/& \| -library/' -e 's/\-\\#\\#\\#/& -dryrun/' ../configure\n")
-        fh.write("../configure --with-config-file=./%s\n" % acfile)
+        fh.write("../configure --with-config-file='%s'\n" % os.path.basename(acfile))
         if has_nag: # post_configure_nag.sh
             fh.write("sed -i -e 's/\t\$.FCFLAGS. \\//' src/98_main/Makefile\n")
         fh.write("make -j%d > make.stdout 2> make.stderr\n" % nthreads)
+        #fh.write("make check\n")
 
         fh.seek(0)
         cprint("abiconf script:", "yellow")
@@ -283,13 +284,13 @@ Usage example:
     abiconf.py hostname [HOST]                => Find conf files for this hostname HOST.
     abiconf.py list                           => List all configuration files.
     abiconf.py keys intel mkl                 => Find configuration files with these keywords.
-    abiconf.py get nic4-ifort-openmpi-mkl-hdf5.ac  => Get a copy of the configuration file.
+    abiconf.py get nic4-ifort-openmpi.ac      => Get a copy of the configuration file.
     abiconf.py new [FILENAME]                 => Generate template file.
     abiconf.py doc                            => Print documented template.
     abiconf.py opts                           => List available configure options.
-    abiconf.py coverage [DIRorFILEs]          => coverage configuration files.
-    abiconf.py workon abiref_gnu_5.3_debug    => Create build directory and compile the code using this
+    abiconf.py workon abiref_gnu_5.3_debug    => Create build directory and compile the code with this
                                                  configuration file.
+    abiconf.py coverage [DIRorFILEs]          => Test coverage (option for developers).
 """
 
     def show_examples_and_exit(error_code=1):

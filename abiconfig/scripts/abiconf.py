@@ -220,7 +220,7 @@ def abiconf_workon(cliopts, confopts, configs):
     # Look before you leap.
     if os.path.exists(workdir):
         if not cliopts.remove:
-            cprint("Directory `%s` already exists. Returning" % workdir, "red")
+            cprint("Build directory `%s` already exists. Use `-r to remote it`. Returning" % workdir, "red")
             return 1
         else:
             shutil.rmtree(workdir)
@@ -231,7 +231,7 @@ def abiconf_workon(cliopts, confopts, configs):
 
     # Create build directory, copy ac file.
     # generare shell script to load modules, run configure and make.
-    print("Creating directory", workdir)
+    print("Creating build directory", workdir)
     os.mkdir(workdir)
     shutil.copy(conf.path, acfile)
 
@@ -247,12 +247,17 @@ def abiconf_workon(cliopts, confopts, configs):
         for module in conf.meta["modules"]:
             fh.write("module load %s\n" % module)
 
-        if has_nag: # pre_configure_nag.sh
+        if has_nag: # taken from pre_configure_nag.sh
             fh.write("sed -i -e 's/ -little/& \| -library/' -e 's/\-\\#\\#\\#/& -dryrun/' ../configure\n")
         fh.write("../configure --with-config-file='%s'\n" % os.path.basename(acfile))
-        if has_nag: # post_configure_nag.sh
+        if has_nag: # taken from post_configure_nag.sh
             fh.write("sed -i -e 's/\t\$.FCFLAGS. \\//' src/98_main/Makefile\n")
-        fh.write("make -j%d > make.stdout 2> make.stderr\n" % nthreads)
+
+        # command > >(tee stdout.log) 2> >(tee stderr.log >&2)
+        # http://stackoverflow.com/questions/692000/how-do-i-write-stderr-to-a-file-while-using-tee-with-a-pipe
+        cprint("make stdout redirected to make.stdout", "yellow")
+        cprint("make stderr redirected to make.stderr", "yellow")
+        fh.write("make -j%d > (tee make.stdout) 2> > (tee make.stderr >&2) \n" % nthreads)
         #fh.write("make check\n")
 
         fh.seek(0)
@@ -265,12 +270,14 @@ def abiconf_workon(cliopts, confopts, configs):
 	# The code gets stuck here if -jN. Should find better approach
 	os.chdir(workdir)
 	retcode = os.system(". %s" % script)
-	stderr_path = os.path.join(workdir, "make.stderr")
-	with open(stderr_path, "rt") as fh:
-	    err = fh.read()
-	    if err:
-		cprint("Errors found in %s" % stderr_path, "red")
-		cprint(err, "red")
+        if retcode != 0:
+            cprint("make returned retcode %s" % retcode, "red")
+            stderr_path = os.path.join(workdir, "make.stderr")
+            with open(stderr_path, "rt") as fh:
+                err = fh.read()
+                if err:
+                    cprint("Errors found in %s" % stderr_path, "red")
+                    cprint(err, "red")
 	os.chdir(cwd)
 
     return retcode
@@ -290,7 +297,7 @@ Usage example:
     abiconf.py opts                           => List available configure options.
     abiconf.py workon abiref_gnu_5.3_debug    => Create build directory and compile the code with this
                                                  configuration file.
-    abiconf.py coverage [DIRorFILEs]          => Test coverage (option for developers).
+    abiconf.py coverage [DIRorFILEs]          => Test buildbot coverage (option for developers).
 """
 
     def show_examples_and_exit(error_code=1):

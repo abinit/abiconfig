@@ -13,7 +13,7 @@ from pprint import pprint
 from socket import gethostname
 from abiconfig.core.utils import get_ncpus, marquee, is_string
 from abiconfig.core.termcolor import cprint
-from abiconfig.core.options import AbinitConfigureOptions, ConfigList, get_actemplate_string
+from abiconfig.core.options import AbinitConfigureOptions, Config, ConfigList, get_actemplate_string
 
 
 def chunks(items, n):
@@ -203,17 +203,23 @@ def abiconf_workon(cliopts, confopts, configs):
         return abiconf_list(cliopts, confopts, configs)
 
     confname = cliopts.confname
-    for conf in configs:
-        if conf.basename == confname or conf.path == confname: break
+    if os.path.exists(confname):
+        # Init conf from local file
+        cprint("Reading configuration file %s" % confname, "yellow")
+        conf = Config.from_File(confname)
     else:
-        cprint("Cannot find configuration file associated to `%s`" % confname, "red")
-        return 1
+        # Find it in the abiconf database.
+        for conf in configs:
+            if conf.basename == confname or conf.path == confname: break
+        else:
+            cprint("Cannot find configuration file associated to `%s`" % confname, "red")
+            return 1
 
-    # Script must be executed inside abinit source tree.
-    #find_top_srctree(".", ntrials=0)
+    # Script must be executed inside the abinit source tree.
+    find_top_srctree(".", ntrials=0)
 
     cwd = os.getcwd()
-    workdir = os.path.join(cwd, confname)
+    workdir = os.path.join(cwd, "_build_" + confname)
     script = os.path.join(workdir, "workon_" + confname + ".sh")
     acfile = os.path.join(workdir, conf.basename)
 
@@ -356,7 +362,8 @@ Usage example:
 
     # Subparser for workon command.
     p_workon = subparsers.add_parser('workon', parents=[copts_parser], help=abiconf_workon.__doc__)
-    p_workon.add_argument('confname', nargs="?", default=None, help="Configuration file to be used.")
+    p_workon.add_argument('confname', nargs="?", default=None,
+                          help="Configuration file to be used. Either abiconf basename or local file")
     p_workon.add_argument("-m", '--make', action="store_true", default=False, help="Run configure/make with -j threads.")
     p_workon.add_argument("-j", '--jobs', type=int, default=0, help="Number of threads used to compile/make.")
     p_workon.add_argument("-r", '--remove', default=False, action="store_true", help="Remove build directory.")

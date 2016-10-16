@@ -261,7 +261,7 @@ def abiconf_workon(cliopts, confopts, configs):
             print(line)
 
     retcode = 0
-    if options.make:
+    if cliopts.make:
 	# The code gets stuck here if -jN. Should find better approach
 	os.chdir(workdir)
 	retcode = os.system(". %s" % script)

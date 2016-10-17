@@ -15,8 +15,11 @@ import itertools
 from pprint import pprint
 from socket import gethostname
 from abiconfig.core.utils import get_ncpus, marquee, is_string, which
+from abiconfig.core import termcolor
 from abiconfig.core.termcolor import cprint
 from abiconfig.core.options import AbinitConfigureOptions, ConfigMeta, Config, ConfigList, get_actemplate_string
+
+__version__ = "8.0.8"
 
 
 def chunks(items, n):
@@ -255,7 +258,6 @@ def abiconf_workon(cliopts, confopts, configs):
     confname = cliopts.confname
     if os.path.exists(confname):
         # Init conf from local file
-        cprint("Reading configuration file %s" % confname, "yellow")
         conf = Config.from_file(confname)
     else:
         # Find it in the abiconf database.
@@ -264,6 +266,11 @@ def abiconf_workon(cliopts, confopts, configs):
         else:
             cprint("Cannot find configuration file associated to `%s`" % confname, "red")
             return 1
+
+    if cliopts.verbose:
+        #cprint("Reading configuration file %s" % confname, "yellow")
+        print("Configuration file:")
+        print(conf)
 
     # Script must be executed inside the abinit source tree.
     #find_top_srctree(".", ntrials=0)
@@ -307,15 +314,15 @@ def abiconf_workon(cliopts, confopts, configs):
 
         # command > >(tee stdout.log) 2> >(tee stderr.log >&2)
         # http://stackoverflow.com/questions/692000/how-do-i-write-stderr-to-a-file-while-using-tee-with-a-pipe
-        cprint("make stdout redirected to make.stdout", "yellow")
-        cprint("make stderr redirected to make.stderr", "yellow")
+        cprint("`make stdout` redirected to make.stdout file", "yellow")
+        cprint("`make stderr` redirected to make.stderr file", "yellow")
         fh.write("make -j%d > >(tee make.stdout) 2> >(tee make.stderr >&2) \n" % nthreads)
         #fh.write("make check\n")
 
         fh.seek(0)
         cprint("abiconf script:", "yellow")
         for line in fh.readlines():
-            print(line)
+            print(line, end="")
 
     retcode = 0
     if cliopts.make:
@@ -340,10 +347,11 @@ def main():
     def str_examples():
         return """\
 Usage example:
-    abiconf.py hostname [HOST]                => Find conf files for this hostname HOST.
+    abiconf.py hostname [HOST]                => Find configuration files for hostname HOST.
     abiconf.py list                           => List all configuration files.
     abiconf.py keys intel mkl                 => Find configuration files with these keywords.
     abiconf.py load acfile                    => Load modules from acfile. Print modules and env vars.
+    abiconf.py convert acfile                 => Add metadata section to an old autoconf file.
     abiconf.py get nic4-ifort-openmpi.ac      => Get a copy of the configuration file.
     abiconf.py new [FILENAME]                 => Generate template file.
     abiconf.py doc                            => Print documented template.
@@ -362,10 +370,12 @@ Usage example:
     # Parent parser for common options.
     copts_parser = argparse.ArgumentParser(add_help=False)
     copts_parser.add_argument('-v', '--verbose', default=0, action='count', # -vv --> verbose=2
-                              help='Verbose, can be supplied multiple times to increase verbosity')
+                              help='Verbose, can be supplied multiple times to increase verbosity.')
+    copts_parser.add_argument('--no-colors', default=False, action="store_true", help='Disable ASCII colors.')
 
     # Build the main parser.
     parser = argparse.ArgumentParser(epilog=str_examples(), formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('-V', '--version', action='version', version=__version__)
 
     # Create the parsers for the sub-commands
     subparsers = parser.add_subparsers(dest='command', help='sub-command help', description="Valid subcommands")
@@ -380,7 +390,7 @@ Usage example:
     p_list = subparsers.add_parser('list', parents=[copts_parser], help=abiconf_list.__doc__)
 
     p_get = subparsers.add_parser('get', parents=[copts_parser], help=abiconf_get.__doc__)
-    p_get.add_argument("basename", nargs="?", default=None, help="Name of the configuration file")
+    p_get.add_argument("basename", nargs="?", default=None, help="Name of the configuration file.")
 
     # Subparser for keys command.
     p_keys = subparsers.add_parser('keys', parents=[copts_parser], help=abiconf_keys.__doc__)
@@ -401,15 +411,16 @@ Usage example:
     p_new.add_argument('new_filename', nargs="?", default=None, help="Name of new configuration file.")
 
     # Subparser for doc command.
-    p_doc = subparsers.add_parser('doc', parents=[copts_parser], help="Print documented template")
+    p_doc = subparsers.add_parser('doc', parents=[copts_parser], help="Print documented template.")
 
     # Subparser for opts command.
     p_opts = subparsers.add_parser('opts', parents=[copts_parser], help=abiconf_opts.__doc__)
-    p_opts.add_argument('optnames', nargs="?", default=None, help="Select options to show")
+    p_opts.add_argument('optnames', nargs="?", default=None, help="Select options to show.")
 
     # Subparser for coverage command.
     p_coverage = subparsers.add_parser('coverage', parents=[copts_parser], help=abiconf_coverage.__doc__)
-    p_coverage.add_argument('paths', nargs="+", default=None, help="")
+    p_coverage.add_argument('paths', nargs="+", default=None,
+                            help="Analyse the coverage of ac options in the test farm.")
 
     # Subparser for apropos command.
     #p_apropos = subparsers.add_parser('find', parents=[copts_parser], help=abiconf_find.__doc__)
@@ -418,7 +429,7 @@ Usage example:
     # Subparser for workon command.
     p_workon = subparsers.add_parser('workon', parents=[copts_parser], help=abiconf_workon.__doc__)
     p_workon.add_argument('confname', nargs="?", default=None,
-                          help="Configuration file to be used. Either abiconf basename or local file")
+                          help="Configuration file to be used. Either abiconf basename or local file.")
     p_workon.add_argument("-m", '--make', action="store_true", default=False, help="Run configure/make with -j threads.")
     p_workon.add_argument("-j", '--jobs', type=int, default=0, help="Number of threads used to compile/make.")
     p_workon.add_argument("-r", '--remove', default=False, action="store_true", help="Remove build directory.")
@@ -427,6 +438,10 @@ Usage example:
         cliopts = parser.parse_args()
     except Exception as exc:
         show_examples_and_exit(1)
+
+    if cliopts.no_colors:
+        # Disable colors
+        termcolor.enable(False)
 
     if cliopts.command == "doc":
         template = get_actemplate_string()

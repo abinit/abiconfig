@@ -18,8 +18,8 @@ from abiconfig.core.utils import get_ncpus, marquee, is_string, which
 from abiconfig.core import termcolor
 from abiconfig.core.termcolor import cprint
 from abiconfig.core.options import AbinitConfigureOptions, ConfigMeta, Config, ConfigList, get_actemplate_string
+from abiconfig.core import release
 
-__version__ = "8.0.8"
 
 def chunks(items, n):
     """
@@ -381,7 +381,7 @@ Usage example:
 
     # Build the main parser.
     parser = argparse.ArgumentParser(epilog=str_examples(), formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('-V', '--version', action='version', version=__version__)
+    parser.add_argument('-V', '--version', action='version', version=release.__version__)
 
     # Create the parsers for the sub-commands
     subparsers = parser.add_subparsers(dest='command', help='sub-command help', description="Valid subcommands")

@@ -1,18 +1,19 @@
+from __future__ import division, print_function, absolute_import
+
 import io
 import os
 
 from setuptools import setup, find_packages
 from glob import glob
-
+from abiconfig.core import release
 
 # Get the long description from the relevant file
 with io.open('README.md', encoding='utf-8') as f:
     long_description = f.read()
 
-
 platforms = ['Linux', 'darwin']
 
-keywords = ["ABINIT", "ab initio", "first principles"]
+keywords = ["ABINIT", "ab initio", "first principles", "configuration files"]
 
 classifiers=[
     "Programming Language :: Python :: 2.7",
@@ -21,15 +22,13 @@ classifiers=[
     "Intended Audience :: Science/Research",
     #"License :: OSI Approved :: MIT License",
     #"Operating System :: OS Independent",
-    #"Topic :: Scientific/Engineering :: Information Analysis",
     #"Topic :: Scientific/Engineering :: Physics",
     #"Topic :: Scientific/Engineering :: Chemistry",
     #"Topic :: Software Development :: Libraries :: Python Modules"
 ],
 
-
 setup(name='abiconfig',
-      version='0.0.1',
+      version=release.__version__,
       description="Configuration files to compile ABINIT on supercomputers.",
       long_description=long_description,
       author="Matteo Giantomassi",

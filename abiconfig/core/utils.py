@@ -1,3 +1,6 @@
+"""
+Utilities. Some routines are taken from https://github.com/materialsvirtuallab/monty
+"""
 from __future__ import unicode_literals, division, print_function, absolute_import
 
 
@@ -84,3 +87,35 @@ def is_string(s):
 
     except TypeError:
         return False
+
+
+def which(cmd):
+    """
+    Returns full path to a executable.
+
+    Args:
+        cmd (str): Executable command to search for.
+
+    Returns:
+        (str) Full path to command. None if it is not found.
+
+    Example::
+
+        full_path_to_python = which("python")
+
+    Taken from monty.os.path
+    """
+    import os
+    def is_exe(fp):
+        return os.path.isfile(fp) and os.access(fp, os.X_OK)
+
+    fpath, fname = os.path.split(cmd)
+    if fpath:
+        if is_exe(cmd):
+            return cmd
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            exe_file = os.path.join(path, cmd)
+            if is_exe(exe_file):
+                return exe_file
+    return None

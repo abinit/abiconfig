@@ -42,6 +42,9 @@ class TestAbiconf(object):
         # Test opts
         env.run(self.script, "opts", self.verbose)
 
+        # Test load
+        #env.run(self.script, "load", "acfile", self.verbose)
+
         # Test workon
         env.run(self.script, "workon", self.verbose)
         env.run(self.script, "workon", "zenobe-intel-impi-mkl.ac", self.verbose)

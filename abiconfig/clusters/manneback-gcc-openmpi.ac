@@ -4,10 +4,12 @@
 #"author": "M. Giantomassi",
 #"date": "2016-09-30",
 #"description": [
-#   "Configuration file for manneback based on easy-build and gomp toolchain",
-#   "(very simple configuration because the modules available are rather limited.)"
+#   "Configuration file for manneback based on easy-build and gompi toolchain",
+#   "(very simple configuration because the modules available are rather limited.)",
+#   "Note: The build is not compatible with Harpertown. To exclude these nodes add to the slurm script:",
+#   "   #SBATCH --exclude=mb-neh[201-204],mb-neh[205-212]"
 #],
-#"keywords": ["linux", "gcc", "openmpi", "easybuild"],
+#"keywords": ["linux", "gcc", "openmpi", "easybuild", "gompi"],
 #"modules": ["gompi/2016a",
 #            "FFTW/3.3.4-gompi-2016a"
 #]
@@ -22,6 +24,8 @@ with_mpi_prefix="${EBROOTOPENMPI}"
 enable_mpi="yes"
 enable_mpi_io="yes"
 enable_openmp="no"
+
+#FCFLAGS="-g -O2 --free-line-length-none"
 
 # BLAS/LAPACK with MKL
 #with_linalg_flavor="mkl"

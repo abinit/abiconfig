@@ -6,8 +6,8 @@
 #"description": [
 #   "Configuration file for manneback based on easy-build and gompi toolchain",
 #   "(very simple configuration because the modules available are rather limited.)",
-#   "Note: The build is not compatible with Harpertown. To exclude these nodes add to the slurm script:",
-#   "   #SBATCH --exclude=mb-neh[201-204],mb-neh[205-212]"
+#   "NOTE: This build is not compatible with Harpertown/Nehalem nodes. To exclude these nodes add to the slurm script:",
+#   "#SBATCH --exclude=mb-neh[070,201-212],mb-har[001-014],mb-har[101-116]"
 #],
 #"keywords": ["linux", "gcc", "openmpi", "easybuild", "gompi"],
 #"modules": ["gompi/2016a",

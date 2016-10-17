@@ -18,7 +18,6 @@ keywords = ["ABINIT", "ab initio", "first principles", "configuration files"]
 classifiers=[
     "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3.4",
-    #"Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     #"License :: OSI Approved :: MIT License",
     #"Operating System :: OS Independent",

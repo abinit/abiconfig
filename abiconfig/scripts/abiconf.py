@@ -16,7 +16,7 @@ from pprint import pprint
 from socket import gethostname
 from abiconfig.core.utils import get_ncpus, marquee, is_string, which
 from abiconfig.core.termcolor import cprint
-from abiconfig.core.options import AbinitConfigureOptions, Config, ConfigList, get_actemplate_string
+from abiconfig.core.options import AbinitConfigureOptions, ConfigMeta, Config, ConfigList, get_actemplate_string
 
 
 def chunks(items, n):
@@ -209,6 +209,30 @@ def abiconf_load(cliopts, confopts, configs):
     return retcode
 
 
+def abiconf_convert(cliopts):
+    """Read a configuration file without metadata section and convert it."""
+    path = cliopts.path
+    try:
+        Config.from_file(path)
+        cprint("%s is already a valid abiconf file. Nothing to do" % path, "magenta")
+        return 0
+    except:
+        pass
+
+    # Build template with metadata section
+    lines = ConfigMeta.get_template_lines()
+
+    # Add it to the file.
+    with open(path, "rt") as fh:
+        lines += fh.readlines()
+    with open(path, "wt") as fh:
+        fh.writelines(lines)
+
+    conf = Config.from_file(path)
+    print(conf)
+    return 0
+
+
 #def abiconf_apropos(cliopts, confopts, configs):
 #    """Find configuration files matching a given condition."""
 #    optname = cliopts.optname
@@ -368,6 +392,10 @@ Usage example:
     p_load = subparsers.add_parser('load', parents=[copts_parser], help=abiconf_load.__doc__)
     p_load.add_argument('path', help="Configuration file.")
 
+    # Subparser for convert.
+    p_conv = subparsers.add_parser('convert', parents=[copts_parser], help=abiconf_convert.__doc__)
+    p_conv.add_argument('path', help="Configuration file in old format.")
+
     # Subparser for new command.
     p_new = subparsers.add_parser('new', parents=[copts_parser], help=abiconf_new.__doc__)
     p_new.add_argument('new_filename', nargs="?", default=None, help="Name of new configuration file.")
@@ -404,6 +432,9 @@ Usage example:
         template = get_actemplate_string()
         print(template)
         return 0
+
+    if cliopts.command == "convert":
+        return abiconf_convert(cliopts)
 
     # Read configure options from my internal copy of options.conf
     confopts = AbinitConfigureOptions.from_myoptions_conf()

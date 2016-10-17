@@ -7,6 +7,7 @@ import json
 
 from collections import OrderedDict, defaultdict
 from pprint import pformat
+from datetime import datetime, date
 from abiconfig.core.utils import is_string, marquee
 from abiconfig.core.termcolor import cprint
 
@@ -177,6 +178,101 @@ class AbinitConfigureOptions(OrderedDict):
         return "\n".join(repr(opt) for opt in self.values())
 
 
+def is_string_list(obj):
+    return isinstance(obj, (list, tuple)) and all(is_string(s) for s in obj)
+
+def is_description(obj):
+    """True if valid description entry."""
+    if is_string(obj): return True
+    if isinstance(obj, (list, tuple)):
+        return all(is_string(s) for s in obj)
+    return False
+
+
+def is_valid_date(obj):
+    """Want date in the format `2011-12-24`"""
+    if not is_string(obj): return False
+    datetime.strptime(obj, "%Y-%m-%d")
+    return True
+
+
+class ConfigMeta(dict):
+    """
+    hostname
+    author
+    date
+    description
+    keywords
+    modules
+    """
+
+    reqkey_validator = [
+        ("hostname", is_string),
+        ("author", is_string),
+        ("date", is_valid_date),
+        ("description", is_description),
+        ("keywords", is_string_list),
+        ("modules", is_string_list),
+    ]
+
+    @classmethod
+    def get_template_lines(cls):
+        """
+        Return template (list of strings). Useful if we have to add the metadata section
+        to a pre-existen configure file.
+        """
+        from socket import gethostname
+        d = {"hostname": gethostname(),
+             "author": "J. Doe",
+             "date": str(date.today()),
+             "description": "description",
+             "keywords": [""],
+             "modules": [""],
+        }
+        #new = cls(**d)
+        #errors = new.validate()
+        #if errors: raise ValueError(str(errors))
+
+        lines = json.dumps(d, indent=4).splitlines()
+        for i in range(len(lines)):
+            lines[i] = "# " + lines[i]
+
+        # Add markers.
+        lines.insert(0, "#---")
+        lines.append("#---")
+
+        return [l + "\n" for l in lines]
+
+    def __init__(self, *args, **kwargs):
+        super(ConfigMeta, self).__init__(*args, **kwargs)
+
+        # description could be either a string or a list of strings.
+        # If list, a newline is added at the end of each item and a single string is built.
+        if isinstance(self["description"], (list, tuple)):
+            lines = []
+            for l in self["description"]:
+                if not l.endswith("\n"): l += "\n"
+                lines.append(l)
+            self["description"] = "".join(lines)
+
+        # Add hostname to keywords.
+        if self["hostname"] not in self["keywords"]:
+            self["keywords"].append(self["hostname"])
+
+    def validate(self):
+        """Poor-man validation. Return list of errors (strings)."""
+        errors = []
+        eapp = errors.append
+        for key, validator in self.reqkey_validator:
+            if key not in self:
+                eapp("Missing key: %s" % key)
+            else:
+                if not validator(self[key]):
+                    eapp("Wrong value for key: %s. Got type: %s" % (key, type(self[key])))
+
+        return errors
+
+
 class Config(OrderedDict):
     """
     Store configuration options read from an abinit .ac file.
@@ -188,13 +284,7 @@ class Config(OrderedDict):
 
         basename:
 
-        meta: dictionary with metadata.
-            hostname
-            author
-            date
-            description
-            keywords
-            modules
+        meta: dictionary with metadata (see ConfigMeta)
     """
     @classmethod
     def from_file(cls, path):
@@ -256,59 +346,19 @@ class Config(OrderedDict):
         return "\n".join(lines)
 
     def _parse_meta(self, s):
-        self.meta = json.loads(s)
+        self.meta = ConfigMeta(**json.loads(s))
 
         errors = []
         eapp = errors.append
-        if not self.meta: eapp("Empty metadata section")
+        if not self.meta:
+            eapp("Empty metadata section")
 
-        def is_string_list(obj):
-            return isinstance(obj, (list, tuple)) and all(is_string(s) for s in obj)
-
-        def is_description(obj):
-            if is_string(obj): return True
-            if isinstance(obj, (list, tuple)):
-                return all(is_string(s) for s in obj)
-            return False
-
-        from datetime import datetime
-        def is_valid_date(obj):
-            """Want date in the format `2011-12-24`"""
-            if not is_string(obj): return False
-            datetime.strptime(obj, "%Y-%m-%d")
-            return True
-
-        # Poor-man validation
-        reqkey_validator = [
-            ("hostname", is_string),
-            ("author", is_string),
-            ("date", is_valid_date),
-            ("description", is_description),
-            ("keywords", is_string_list),
-            ("modules", is_string_list),
-        ]
-        for key, validator in reqkey_validator:
-            if key not in self.meta:
-                eapp("Missing key: %s" % key)
-            else:
-                if not validator(self.meta[key]):
-                    eapp("Wrong value for key: %s. Got type: %s" % (key, type(self.meta[key])))
+        elist = self.meta.validate()
+        if elist:
+            errors.extend(elist)
 
         if errors:
             raise ValueError("Wrong metadata section in file: %s\n%s" % (self.path, "\n".join(errors)))
-
-        # description could be either a string or a list of strings.
-        # If list, a newline is added at the end of each item and a single string is built.
-        if isinstance(self.meta["description"], (list, tuple)):
-            lines = []
-            for l in self.meta["description"]:
-                if not l.endswith("\n"): l += "\n"
-                lines.append(l)
-            self.meta["description"] = "".join(lines)
-
-        # ADd hostname to keywords.
-        if self.meta["hostname"] not in self.meta["keywords"]:
-            self.meta["keywords"].append(self.meta["hostname"])
 
 
 class ConfigList(list):

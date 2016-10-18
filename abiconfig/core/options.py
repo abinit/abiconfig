@@ -206,6 +206,8 @@ class ConfigMeta(dict):
     pre_configure
     post_configure
     post_make
+    qtype
+    qargs
     """
 
     reqkey_validator = [
@@ -231,7 +233,11 @@ class ConfigMeta(dict):
              "date": str(date.today()),
              "description": "description",
              "keywords": [""],
+             "qtype": "slurm",
+             "qargs": "{}",
              "pre_configure": [""],
+             "pre_make": [""],
+             "post_make": [""],
         }
         #new = cls(**d)
         #errors = new.validate()

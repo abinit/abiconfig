@@ -4,6 +4,7 @@
 #"author": "G. Petretto",
 #"date": "2016-09-18",
 #"description": "Configuration file for edison with intel environment and fftw library",
+#"qtype": "slurm",
 #"keywords": ["linux", "intel", "cray", "fftw"],
 #"pre_configure": [ 
 #]
@@ -19,6 +20,9 @@
 #module load fftw/3.3.4.0 
 #module load cray-netcdf/4.4.0 
 #module load cray-libsci/16.07.1 
+
+#install architecture-independent files in PREFIX
+#prefix="~/local/"
 
 enable_mpi="yes"
 enable_mpi_io="yes"

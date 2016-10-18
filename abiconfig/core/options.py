@@ -364,6 +364,18 @@ class Config(OrderedDict):
         if errors:
             raise ValueError("Wrong metadata section in file: %s\n%s" % (self.path, "\n".join(errors)))
 
+    def get_script_str(self):
+        from .qtemplates import QueueTemplate
+        qtype = self.meta.get("qtype")
+        if qtype is None: return "!#/bin/bash"
+        template = QueueTemplate.from_qtype(qtype)
+        #print(template.supported_qparams)
+        lines = template.substitute(self.meta.get("qargs", {})).splitlines()
+        lines.append("\n")
+        for l in self.meta["pre_configure"]:
+            lines.append(l)
+        return "\n".join(lines)
+
 
 class ConfigList(list):
     """

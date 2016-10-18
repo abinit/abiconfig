@@ -5,6 +5,7 @@
 #"date": "2016-09-30",
 #"description": "Configuration file for nic4. Uses intel compilers, openmpi, mkl (sequential) and external netcdf4/hdf5",
 #"keywords": ["linux", "intel", "openmpi", "mkl", "hdf5"],
+#"qtype": "slurm",
 #"pre_configure": [
 #   "module load openmpi/1.7.5/intel2013_sp1.1.106",
 #   "module load intel/mkl/64/11.1/2013_sp1.1.106",

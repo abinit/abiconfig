@@ -5,6 +5,7 @@
 #"date": "2016-09-30",
 #"description": "Configuration file for hmem. Uses openmpi with intel and mkl library",
 #"keywords": ["linux", "intel", "openmpi", "mkl"],
+#"qtype": "slurm",
 #"pre_configure": [
 #  "module purge",
 #  "module load openmpi/1.5.3/intel-12.0.0.084"

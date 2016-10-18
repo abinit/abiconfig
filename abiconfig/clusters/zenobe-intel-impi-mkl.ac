@@ -5,6 +5,7 @@
 #"date": "2016-09-30",
 #"description": "Configuration file for zenobe. Uses intel compilers, intel-mpi and mkl with scalapack",
 #"keywords": ["linux", "intel", "impi", "mkl", "scalapack"],
+#"qtype": "pbspro",
 #"pre_configure": [
 #   "module load compiler/intel/composerxe/2013_sp1.1.106",
 #   "module load intelmpi/4.1.3.045/64"]

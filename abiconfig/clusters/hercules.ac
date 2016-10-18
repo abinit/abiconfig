@@ -5,6 +5,7 @@
 #"date": "2016-09-30",
 #"description": "Configuration file for hercules. Uses easybuild and mkl library",
 #"keywords": ["linux", "gcc", "impi", "mkl"],
+#"qtype": "slurm",
 #"pre_configure": [
 #   "module purge",
 #   "module load impi/2013"

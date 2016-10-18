@@ -5,6 +5,7 @@
 #"date": "2016-09-30",
 #"description": "Configuration file for jureca. Uses intel compilers, openmpi and mkl (sequential)",
 #"keywords": ["linux", "intel", "openmpi", "mkl", "scalapack"],
+#"qtype": "slurm",
 #"pre_configure": [
 #   "module purge",
 #   "module load intel-para/2015.07"

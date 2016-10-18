@@ -5,7 +5,7 @@
 #"date": "2016-09-18",
 #"description": "Configuration file for edison with intel environment and fftw library",
 #"keywords": ["linux", "intel", "cray", "fftw"],
-#"pre_configure": [
+#"pre_configure": [ 
 #]
 #}
 #---

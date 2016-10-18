@@ -4,13 +4,13 @@
 #"author": "M. Giantomassi",
 #"date": "2016-09-18",
 #"description": [
-#   "Configuration file for edison based on the gnu gcc environment",
+#   "Configuration file for edison based on the gnu gcc environment"
 #],
 #"keywords": ["linux", "gcc", "cray"],
 #"pre_configure": [
 #   "module swap PrgEnv-intel PrgEnv-gnu",
 #   "module swap gcc/6.1.0 gcc/5.1.0",
-#   "module load fftw/3.3.4.9"
+#   "module load fftw/3.3.4.9",
 #   "module load cray-netcdf-hdf5parallel/4.4.0"
 #]
 #}

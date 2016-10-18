@@ -10,32 +10,14 @@ import os
 import argparse
 import time
 import shutil
-import itertools
 
 from pprint import pprint
 from socket import gethostname
-from abiconfig.core.utils import get_ncpus, marquee, is_string, which
+from abiconfig.core.utils import get_ncpus, marquee, is_string, which, chunks
 from abiconfig.core import termcolor
 from abiconfig.core.termcolor import cprint
 from abiconfig.core.options import AbinitConfigureOptions, ConfigMeta, Config, ConfigList, get_actemplate_string
 from abiconfig.core import release
-
-
-def chunks(items, n):
-    """
-    Yield successive n-sized chunks from a list-like object.
-
-    >>> import pprint
-    >>> pprint.pprint(list(chunks(range(1, 25), 10)))
-    [(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
-     (11, 12, 13, 14, 15, 16, 17, 18, 19, 20),
-     (21, 22, 23, 24)]
-    """
-    it = iter(items)
-    chunk = tuple(itertools.islice(it, n))
-    while chunk:
-        yield chunk
-        chunk = tuple(itertools.islice(it, n))
 
 
 def find_top_srctree(start_path, ntrials=10):
@@ -63,10 +45,10 @@ def find_top_srctree(start_path, ntrials=10):
     raise RuntimeError("Cannot find the ABINIT source tree after %s trials" % ntrials)
 
 
-def abiconf_new(cliopts, confopts, configs):
+def abiconf_new(options):
     """Generate new configuration file."""
     template = get_actemplate_string()
-    new_filename = cliopts.new_filename
+    new_filename = options.new_filename
     if new_filename is None:
         new_filename = gethostname() + "-compiler-mpi-libs-extra.ac"
 
@@ -75,21 +57,22 @@ def abiconf_new(cliopts, confopts, configs):
     return 0
 
 
-def abiconf_opts(cliopts, confopts, configs):
+def abiconf_opts(options):
     """List available configure options."""
-    if cliopts.optnames is None or not cliopts.optnames:
+    confopts = AbinitConfigureOptions.from_myoptions_conf()
+    if options.optnames is None or not options.optnames:
         # Print all options.
         for opt in confopts.values():
-            if cliopts.verbose:
+            if options.verbose:
                 cprint(marquee(opt.name), "yellow")
                 print(opt)
             else:
                 print(repr(opt))
 
-        if cliopts.verbose == 0:
+        if options.verbose == 0:
             print("\nUse -v for further information")
     else:
-        for optname in cliopts.optnames:
+        for optname in options.optnames:
             opt = confopts[optname]
             cprint(marquee(opt.name), "yellow")
             print(opt)
@@ -97,29 +80,43 @@ def abiconf_opts(cliopts, confopts, configs):
     return 0
 
 
-def abiconf_coverage(cliopts, confopts, configs):
+def abiconf_coverage(options):
     """Analyse the coverage of autoconf options in the Abinit test farm."""
-    return configs.coverage(confopts, verbose=cliopts.verbose)
+    # Either build configs from internal directories or from command-line arguments.
+    if options.paths is None:
+        configs = ConfigList.get_clusters()
+    else:
+        if len(options.paths) == 1 and os.path.isdir(options.paths[0]):
+            # Directory with files.
+            configs = ConfigList.from_dir(options.paths[0])
+        else:
+            # List of files.
+            configs = ConfigList.from_files(options.paths)
+
+    return configs.coverage(AbinitConfigureOptions.from_myoptions_conf(), verbose=options.verbose)
 
 
-def abiconf_hostname(cliopts, confopts, configs):
+def abiconf_hostname(options):
     """Find configuration files for this hostname."""
+
     def show_hostnames():
         cprint(marquee("List of available hostnames"), "yellow")
         all_hosts = sorted({conf.meta["hostname"] for conf in configs})
         for chunk in chunks(all_hosts, 7):
             cprint(", ".join(chunk), "blue")
 
-    if cliopts.show_hostnames:
+    if options.show_hostnames:
         show_hostnames()
         return 0
 
-    hostname = gethostname() if cliopts.hostname is None else cliopts.hostname
+    hostname = gethostname() if options.hostname is None else options.hostname
     #print("Finding configuration files for hostname: `%s`" % hostname)
     nfound = 0
+    configs = ConfigList.get_clusters()
     for conf in configs:
         # TODO: Should handle foo.bar.be case
-        if not (hostname in conf.meta["keywords"] or hostname in conf.basename):
+        #if not (hostname in conf.meta["keywords"] or hostname in conf.basename):
+        if not hostname in conf.meta["hostname"]:
             continue
         nfound += 1
         cprint(marquee(conf.basename), "yellow")
@@ -132,36 +129,40 @@ def abiconf_hostname(cliopts, confopts, configs):
     return 0
 
 
-def abiconf_list(cliopts, confopts, configs):
+def abiconf_list(options):
     """List all configuration files."""
+    configs = ConfigList.get_clusters()
     cprint(marquee("List of available configuration files"), "yellow")
     for i, config in enumerate(configs):
         print("[%d] %s" % (i, config.basename))
-        if cliopts.verbose:
+        if options.verbose:
             pprint(config.meta)
             print(92* "=")
-    if cliopts.verbose == 0: print("\nUse -v for further information")
+    if options.verbose == 0: print("\nUse -v for further information")
     return 0
 
 
-def abiconf_get(cliopts, confopts, configs):
+def abiconf_get(options):
     """Get a copy of a configuration file from its basename"""
-    if cliopts.basename is None:
-        return abiconf_list(cliopts, confopts, configs)
+    configs = ConfigList.get_clusters()
+    if options.basename is None:
+        confopts = AbinitConfigureOptions.from_myoptions_conf()
+        return abiconf_list(options)
 
     for i, config in enumerate(configs):
-        if config.basename == cliopts.basename:
-            cprint("Copying file to %s" % cliopts.basename, "yellow")
-            shutil.copy(config.path, cliopts.basename)
+        if config.basename == options.basename:
+            cprint("Copying file to %s" % options.basename, "yellow")
+            shutil.copy(config.path, options.basename)
             return 0
     else:
-        cprint("Cannot find configuration file for %s" % cliopts.basename, "red")
+        cprint("Cannot find configuration file for %s" % options.basename, "red")
         return 1
 
 
-def abiconf_keys(cliopts, confopts, configs):
+def abiconf_keys(options):
     """Find configuration files containing keywords."""
-    if cliopts.keys is None or not cliopts.keys:
+    configs = ConfigList.get_clusters()
+    if options.keys is None or not options.keys:
         # Print list of available keywords.
         all_keys = set()
         for conf in configs:
@@ -173,35 +174,46 @@ def abiconf_keys(cliopts, confopts, configs):
 
     else:
         # Find configuration files containing keywords.
-        keys = cliopts.keys
+        keys = options.keys
         if is_string(keys): keys = [keys]
         keys = set(keys)
         for conf in configs:
             if keys.issubset(conf.meta["keywords"]):
                 print("")
                 cprint(marquee(conf.basename), "yellow")
-                if cliopts.verbose:
+                if options.verbose:
                     print(conf)
                 else:
                     pprint(conf.meta)
-        if cliopts.verbose == 0: print("\nUse -v for further information")
+        if options.verbose == 0: print("\nUse -v for further information")
 
     return 0
 
 
-def abiconf_script(cliopts):
+def abiconf_script(options):
     """Generate submission script from configuration file."""
-    path = cliopts.path
-    conf = Config.from_file(cliopts.path)
-    print(conf.get_script_str())
+    path = options.path
+    if path is None:
+        print("Available configuration files.")
+        return abiconf_list(options)
 
+    if os.path.exists(path):
+        conf = Config.from_file(path)
+    else:
+        configs = ConfigList.get_clusters()
+        for conf in configs:
+            if conf.basename == path: break
+        else:
+            raise ValueError("Cannot find %s in internal list" % path)
+
+    print(conf.get_script_str())
     return 0
 
 
-#def abiconf_load(cliopts, confopts, configs):
+#def abiconf_load(options):
 #    """Load modules from ac file."""
 #    raise NotImplementedError("")
-#    conf = Config.from_file(cliopts.path)
+#    conf = Config.from_file(options.path)
 #    print("Loading modules from ", conf.basename)
 #
 #    script = os.path.join(workdir, "source_modules.sh")
@@ -221,9 +233,9 @@ def abiconf_script(cliopts):
 #    return retcode
 
 
-def abiconf_convert(cliopts):
+def abiconf_convert(options):
     """Read a configuration file without metadata section and convert it."""
-    path = cliopts.path
+    path = options.path
     try:
         Config.from_file(path)
         cprint("%s is already a valid abiconf file. Nothing to do" % path, "magenta")
@@ -245,26 +257,18 @@ def abiconf_convert(cliopts):
     return 0
 
 
-#def abiconf_apropos(cliopts, confopts, configs):
-#    """Find configuration files matching a given condition."""
-#    optname = cliopts.optname
-#    for conf in configs:
-#        if optname in conf:
-#            print(conf[optname])
-#    return 0
-
-
-def abiconf_workon(cliopts, confopts, configs):
+def abiconf_workon(options):
     """
     Used by developers to compile the code with the settings and
     the modules used by one of the buildbot builders.
     """
     # If confname is not specified, print full list and return
-    if cliopts.confname is None:
+    configs = ConfigList.get_clusters()
+    if options.confname is None:
         print("Available configuration files.")
-        return abiconf_list(cliopts, confopts, configs)
+        return abiconf_list(options)
 
-    confname = cliopts.confname
+    confname = options.confname
     if os.path.exists(confname):
         # Init conf from local file
         conf = Config.from_file(confname)
@@ -276,7 +280,7 @@ def abiconf_workon(cliopts, confopts, configs):
             cprint("Cannot find configuration file associated to `%s`" % confname, "red")
             return 1
 
-    if cliopts.verbose:
+    if options.verbose:
         #cprint("Reading configuration file %s" % confname, "yellow")
         print("Configuration file:")
         print(conf)
@@ -291,7 +295,7 @@ def abiconf_workon(cliopts, confopts, configs):
 
     # Look before you leap.
     if os.path.exists(workdir):
-        if not cliopts.remove:
+        if not options.remove:
             cprint("Build directory `%s` already exists. Use `-r to remove it`. Returning" % workdir, "red")
             return 1
         else:
@@ -305,7 +309,7 @@ def abiconf_workon(cliopts, confopts, configs):
 
     # Write shell script to start new with modules and run it.
     has_nag = "nag" in conf.meta["keywords"]
-    nthreads = cliopts.jobs
+    nthreads = options.jobs
     if nthreads == 0: nthreads = get_ncpus()
 
     with open(script, "w+") as fh:
@@ -352,7 +356,7 @@ def abiconf_workon(cliopts, confopts, configs):
             print(line, end="")
 
     retcode = 0
-    if cliopts.make:
+    if options.make:
 	# The code gets stuck here if -jN. Should find better approach
 	os.chdir(workdir)
 	retcode = os.system(". %s" % script)
@@ -371,7 +375,7 @@ def abiconf_workon(cliopts, confopts, configs):
 
 def main():
     #abiconf.py load acfile                    => Load modules from acfile. Print modules and env vars.
-
+    #abiconf.py script basebname               =>
     def str_examples():
         return """\
 Usage example:
@@ -428,9 +432,10 @@ Usage example:
 
     # Subparser for script.
     p_script = subparsers.add_parser('script', parents=[copts_parser], help=abiconf_script.__doc__)
-    p_script.add_argument('path', help="Configuration file.")
+    p_script.add_argument('path', nargs="?", default=None,
+                          help="Configuration file or database entry. None to print all files.")
 
-    # Subparser for job.
+    # Subparser for load.
     #p_load = subparsers.add_parser('load', parents=[copts_parser], help=abiconf_load.__doc__)
     #p_load.add_argument('path', help="Configuration file.")
 
@@ -453,10 +458,6 @@ Usage example:
     p_coverage = subparsers.add_parser('coverage', parents=[copts_parser], help=abiconf_coverage.__doc__)
     p_coverage.add_argument('paths', nargs="+", default=None, help="ac file or directory with ac files.")
 
-    # Subparser for apropos command.
-    #p_apropos = subparsers.add_parser('find', parents=[copts_parser], help=abiconf_find.__doc__)
-    #p_apropos.add_argument('optname', default=None, help="Option name.")
-
     # Subparser for workon command.
     p_workon = subparsers.add_parser('workon', parents=[copts_parser], help=abiconf_workon.__doc__)
     p_workon.add_argument('confname', nargs="?", default=None,
@@ -466,50 +467,22 @@ Usage example:
     p_workon.add_argument("-r", '--remove', default=False, action="store_true", help="Remove build directory.")
 
     try:
-        cliopts = parser.parse_args()
+        options = parser.parse_args()
     except Exception as exc:
         show_examples_and_exit(1)
 
-    if cliopts.no_colors:
+    if options.no_colors:
         # Disable colors
         termcolor.enable(False)
 
-    if cliopts.command == "doc":
+    if options.command == "doc":
         template = get_actemplate_string()
         print(template)
         return 0
 
-    if cliopts.command == "convert":
-        return abiconf_convert(cliopts)
-
-    # Read configure options from my internal copy of options.conf
-    confopts = AbinitConfigureOptions.from_myoptions_conf()
-
-    if cliopts.command == "coverage":
-        # Either build configs from internal directories or from command-line arguments.
-        if cliopts.paths is None:
-            dir_basenames = ["clusters"]
-            configs = ConfigList.from_mydirs(dir_basenames)
-        else:
-            #print(cliopts.paths)
-            if len(cliopts.paths) == 1 and os.path.isdir(cliopts.paths[0]):
-                # Directory with files.
-                configs = ConfigList.from_dir(cliopts.paths[0])
-            else:
-                # List of files.
-                configs = ConfigList.from_files(cliopts.paths)
-
-    elif cliopts.command == "script":
-        return abiconf_script(cliopts)
-
     else:
-        dir_basenames = ["clusters"]
-        configs = ConfigList.from_mydirs(dir_basenames)
-        if cliopts.verbose:
-            print("Found %d configuration files in `%s`" % (len(configs), dir_basenames))
-
-    # Dispatch.
-    return globals()["abiconf_" + cliopts.command](cliopts, confopts, configs)
+        # Dispatch.
+        return globals()["abiconf_" + options.command](options)
 
 
 if __name__ == "__main__":

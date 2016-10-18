@@ -119,3 +119,21 @@ def which(cmd):
             if is_exe(exe_file):
                 return exe_file
     return None
+
+
+def chunks(items, n):
+    """
+    Yield successive n-sized chunks from a list-like object.
+
+    >>> import pprint
+    >>> pprint.pprint(list(chunks(range(1, 25), 10)))
+    [(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+     (11, 12, 13, 14, 15, 16, 17, 18, 19, 20),
+     (21, 22, 23, 24)]
+    """
+    import itertools
+    it = iter(items)
+    chunk = tuple(itertools.islice(it, n))
+    while chunk:
+        yield chunk
+        chunk = tuple(itertools.islice(it, n))

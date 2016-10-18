@@ -377,10 +377,32 @@ class Config(OrderedDict):
         return "\n".join(lines)
 
 
+_cache = {}
+
 class ConfigList(list):
     """
     List of Config object. It's usually initialized from a directory containing .ac files.
     """
+    @classmethod
+    def get_clusters(cls):
+        if "cluster" in _cache: return _cache["clusters"]
+        _cache["clusters"] = ConfigList.from_mydirs(["clusters"])
+        return _cache["clusters"]
+
+    #@classmethod
+    #def get_buildbot_slaves(cls):
+    #    if hasattr(cls, "_cached_clusters"): return cls._cached_clusters
+    #    cls._cached_clusters = ConfigList.from_mydirs(["clusters"])
+    #    return cls._cached_clusters
+
+    @classmethod
+    def get_config_from_name(cls, acname):
+        configs = ConfigList.from_mydirs(["clusters"])
+        for c in configs:
+            if c.basebame == acname: return c
+        raise ValueError("Cannot find %s in internal list.")
+
+
     @classmethod
     def from_mydirs(cls, dir_basenames):
         """

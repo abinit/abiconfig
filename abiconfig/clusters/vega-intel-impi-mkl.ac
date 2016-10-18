@@ -6,7 +6,10 @@
 #"description": "Configuration file for vega. Uses easybuild with intel compilers, impi and mkl",
 #"keywords": ["linux", "intel", "impi", "mkl", "easybuild"],
 #"qtype": "slurm",
-#"pre_configure": ["module load intel/2015a"]
+#"pre_configure": [
+#   "module purge",
+#   "module load intel/2015a"
+#]
 #}
 #---
 

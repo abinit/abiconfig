@@ -358,8 +358,8 @@ def abiconf_workon(options):
     retcode = 0
     if options.make:
 	# The code gets stuck here if -jN. Should find better approach
-	os.chdir(workdir)
-	retcode = os.system(". %s" % script)
+        os.chdir(workdir)
+        retcode = os.system(". %s" % script)
         if retcode != 0:
             cprint("make returned retcode %s" % retcode, "red")
             stderr_path = os.path.join(workdir, "make.stderr")

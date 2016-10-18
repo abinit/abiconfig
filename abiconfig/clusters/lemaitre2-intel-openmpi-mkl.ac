@@ -5,7 +5,10 @@
 #"date": "2016-09-30",
 #"description": "Configuration file for lemaitre2. Uses intel compilers, openmpi and mkl (sequential)",
 #"keywords": ["linux", "intel", "openmpi", "mkl"],
-#"modules": ["openmpi/1.6.5/intel-13.0.1.117"]
+#"pre_configure": [
+#  "module purge",
+#  "module load openmpi/1.6.5/intel-13.0.1.117"
+#]
 #}
 #---
 

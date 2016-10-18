@@ -203,7 +203,9 @@ class ConfigMeta(dict):
     date
     description
     keywords
-    modules
+    pre_configure
+    post_configure
+    post_make
     """
 
     reqkey_validator = [
@@ -212,7 +214,9 @@ class ConfigMeta(dict):
         ("date", is_valid_date),
         ("description", is_description),
         ("keywords", is_string_list),
-        ("modules", is_string_list),
+        #("pre_configure", is_string_list),
+        #("post_configure", is_string_list),
+        #("post_make", is_string_list),
     ]
 
     @classmethod
@@ -227,7 +231,7 @@ class ConfigMeta(dict):
              "date": str(date.today()),
              "description": "description",
              "keywords": [""],
-             "modules": [""],
+             "pre_configure": [""],
         }
         #new = cls(**d)
         #errors = new.validate()

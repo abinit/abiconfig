@@ -5,7 +5,10 @@
 #"date": "2016-09-30",
 #"description": "Configuration file for dragon1. Uses intel compilers, openmpi and mkl",
 #"keywords": ["linux", "intel", "mpich", "mkl"],
-#"modules": ["module load mpich/3.0.4/intel-13.0.0"]
+#"pre_configure": [
+#   "module purge",
+#   "module load mpich/3.0.4/intel-13.0.0"
+#]
 #}
 #---
 

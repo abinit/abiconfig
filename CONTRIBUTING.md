@@ -25,7 +25,10 @@ The following keyworkds must be defined:
         Use `abiconf.py keys` to get the list of keywords already used 
         and try to re-use them for new files. 
 
-    - modules
+    - pre_configure
 
-        List of modules required to build/run the executables.
-        Empty list if no module is required.
+        List of shell commands to be executed before `configure`.
+        e.g. commands to load modules required to build/run the executables.
+
+    - post_configure
+    - post_make

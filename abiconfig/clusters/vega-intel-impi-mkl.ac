@@ -5,7 +5,7 @@
 #"date": "2016-09-30",
 #"description": "Configuration file for vega. Uses easybuild with intel compilers, impi and mkl",
 #"keywords": ["linux", "intel", "impi", "mkl", "easybuild"],
-#"modules": ["intel/2015a"]
+#"pre_configure": ["module load intel/2015a"]
 #}
 #---
 

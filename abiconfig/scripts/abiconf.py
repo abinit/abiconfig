@@ -368,7 +368,7 @@ def abiconf_workon(options):
                 if err:
                     cprint("Errors found in %s" % stderr_path, "red")
                     cprint(err, "red")
-	os.chdir(cwd)
+        os.chdir(cwd)
 
     return retcode
 

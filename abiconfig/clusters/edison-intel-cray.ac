@@ -1,6 +1,6 @@
 #---
 #{
-#"hostname": "hmem",
+#"hostname": "edison",
 #"author": "G. Petretto",
 #"date": "2016-09-18",
 #"description": "Configuration file for edison with intel environment and fftw library",

@@ -298,7 +298,7 @@ def abiconf_workon(options):
                 fh.write("%s\n" % cmd)
 
         conf_lines = [
-            "[! -f __configure_done__ ] && ../configure --with-config-file='%s'\n" % os.path.basename(acfile),
+            "[ ! -f __configure_done__ ] && ../configure --with-config-file='%s'\n" % os.path.basename(acfile),
             "touch __configure_done__\n",
         ]
         if has_nag:

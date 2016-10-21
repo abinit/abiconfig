@@ -308,6 +308,7 @@ class Config(OrderedDict):
 
         with open(path, "rt") as fh:
             lines = fh.readlines()
+            new.string = "".join(lines)
 
             # Read header with metadata.
             inmeta, meta = 0, []
@@ -346,14 +347,14 @@ class Config(OrderedDict):
         return "<%s: %s>" % (self.__class__.__name__, self.path)
 
     def __str__(self):
-        return self.to_string()
+        return self.string
 
-    def to_string(self):
-        """String representation."""
-        lines = [self.path, " "]
-        lines.extend([pformat(self.meta, indent=2), " "])
-        lines.extend("%s=%s" % (k, v) for k, v in self.items())
-        return "\n".join(lines)
+    #def to_string(self):
+    #    """String representation."""
+    #    lines = [self.path, " "]
+    #    lines.extend([pformat(self.meta, indent=2), " "])
+    #    lines.extend("%s=%s" % (k, v) for k, v in self.items())
+    #    return "\n".join(lines)
 
     def _parse_meta(self, s):
         self.meta = ConfigMeta(**json.loads(s))
@@ -378,8 +379,15 @@ class Config(OrderedDict):
         #print(template.supported_qparams)
         lines = template.substitute(self.meta.get("qargs", {})).splitlines()
         lines.append("\n")
+        lines.append("export OMP_NUM_THREADS=1    # Number of OpenMP Threads")
+        lines.append("ulimit -s unlimited         # Set stack size to unlimited (if allowed)")
+
+        #lines.append("export ABINIT_PREFIX=/path/to/abinit_directory")
+        #lines.append("mpirun -n abinit < run.files > run.log 2> run.err")
+
         for l in self.meta["pre_configure"]:
             lines.append(l)
+
         return "\n".join(lines)
 
 
@@ -408,7 +416,6 @@ class ConfigList(list):
             if c.basebame == acname: return c
         raise ValueError("Cannot find %s in internal list.")
 
-
     @classmethod
     def from_mydirs(cls, dir_basenames):
         """
@@ -434,6 +441,7 @@ class ConfigList(list):
             for f in filenames:
                 if not f.endswith(".ac"): continue
                 path = os.path.join(dirpath, f)
+                #print(path)
                 try:
                     new.append(Config.from_file(path))
                 except Exception as exc:
@@ -454,7 +462,7 @@ class ConfigList(list):
                 raise
         return new
 
-    def coverage(self, options, verbose=0):
+    def bbcoverage(self, options, verbose=0):
         # Init mapping option.name --> [(config0.path, value0), (config1.path, value1), ...]
         # This dict is used to test if all the options are tested in the configuration files:
         #       - empty list --> the option is never used.

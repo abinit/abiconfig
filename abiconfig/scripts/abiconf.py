@@ -62,6 +62,7 @@ def abiconf_opts(options):
     confopts = AbinitConfigureOptions.from_myoptions_conf()
     if options.optnames is None or not options.optnames:
         # Print all options.
+        cprint(marquee("List of available options"), "yellow")
         for opt in confopts.values():
             if options.verbose:
                 cprint(marquee(opt.name), "yellow")
@@ -80,20 +81,25 @@ def abiconf_opts(options):
     return 0
 
 
-def abiconf_coverage(options):
+def abiconf_bbcov(options):
     """Analyse the coverage of autoconf options in the Abinit test farm."""
     # Either build configs from internal directories or from command-line arguments.
-    if options.paths is None:
-        configs = ConfigList.get_clusters()
+    paths = options.paths
+    if paths is None or not paths:
+        # No argument provided --> Find directory with buildbot ac files and read them.
+        # Assume we are inside an Abinit package.
+        abinit_top = find_top_srctree(".", ntrials=20)
+        bbconfig_dir = os.path.join(abinit_top, "doc", "build", "config-examples")
+        cprint("Looking for buildbot slave ac files in: %s" % bbconfig_dir, "yellow")
+        configs = ConfigList.from_dir(bbconfig_dir)
     else:
-        if len(options.paths) == 1 and os.path.isdir(options.paths[0]):
-            # Directory with files.
-            configs = ConfigList.from_dir(options.paths[0])
+        # paths can be a directory name or list of files.
+        if len(paths) == 1 and os.path.isdir(paths[0]):
+            configs = ConfigList.from_dir(paths[0])
         else:
-            # List of files.
-            configs = ConfigList.from_files(options.paths)
+            configs = ConfigList.from_files(paths)
 
-    return configs.coverage(AbinitConfigureOptions.from_myoptions_conf(), verbose=options.verbose)
+    return configs.bbcoverage(AbinitConfigureOptions.from_myoptions_conf(), verbose=options.verbose)
 
 
 def abiconf_hostname(options):
@@ -194,7 +200,6 @@ def abiconf_script(options):
     """Generate submission script from configuration file."""
     path = options.path
     if path is None:
-        print("Available configuration files.")
         return abiconf_list(options)
 
     if os.path.exists(path):
@@ -234,6 +239,18 @@ def abiconf_convert(options):
     return 0
 
 
+def abiconf_bbslaves(options):
+    """
+    Show the list of configuration files used on the test farm.
+    """
+    abinit_top = find_top_srctree(".", ntrials=20)
+    bbconfig_dir = os.path.join(abinit_top, "doc", "build", "config-examples")
+    #print(bbconfig_dir)
+    configs = ConfigList.from_dir(bbconfig_dir)
+
+    return 0
+
+
 def abiconf_workon(options):
     """
     Used by developers to compile the code with the settings and
@@ -263,7 +280,7 @@ def abiconf_workon(options):
         print(conf)
 
     # Script must be executed inside the abinit source tree.
-    #find_top_srctree(".", ntrials=0)
+    #abinit_top = find_top_srctree(".", ntrials=0)
 
     cwd = os.getcwd()
     workdir = os.path.join(cwd, "_build_" + confname)
@@ -351,22 +368,22 @@ def abiconf_workon(options):
 
 
 def main():
-    #abiconf.py load acfile                    => Load modules from acfile. Print modules and env vars.
-    #abiconf.py script basebname               =>
+
     def str_examples():
         return """\
 Usage example:
     abiconf.py hostname [HOST]                => Find configuration files for hostname HOST.
     abiconf.py list                           => List all configuration files.
+    abiconf.py script [ACNAME]                =>
     abiconf.py keys intel mkl                 => Find configuration files with these keywords.
     abiconf.py convert acfile                 => Add metadata section to an old autoconf file.
     abiconf.py get nic4-ifort-openmpi.ac      => Get a copy of the configuration file.
     abiconf.py new [FILENAME]                 => Generate template file.
     abiconf.py doc                            => Print documented template.
-    abiconf.py opts                           => List available configure options.
+    abiconf.py opts [opt_name]                => List available configure options.
     abiconf.py workon abiref_gnu_5.3_debug    => Create build directory and compile the code with this
                                                  configuration file.
-    abiconf.py coverage [DIRorFILEs]          => Test autoconf options coverage (option for developers).
+    abiconf.py bbcov [DIRorFILEs]             => Test autoconf options coverage (option for developers).
 """
 
     def show_examples_and_exit(error_code=1):
@@ -427,9 +444,12 @@ Usage example:
     p_opts = subparsers.add_parser('opts', parents=[copts_parser], help=abiconf_opts.__doc__)
     p_opts.add_argument('optnames', nargs="*", default=None, help="Select options to show.")
 
-    # Subparser for coverage command.
-    p_coverage = subparsers.add_parser('coverage', parents=[copts_parser], help=abiconf_coverage.__doc__)
-    p_coverage.add_argument('paths', nargs="+", default=None, help="ac file or directory with ac files.")
+    # Subparser for bbcov command.
+    p_bbcov = subparsers.add_parser('bbcov', parents=[copts_parser], help=abiconf_bbcov.__doc__)
+    p_bbcov.add_argument('paths', nargs="*", default=None, help="ac file or directory with ac files.")
+
+    # Subparser for bbslaves command.
+    #p_bbslaves = subparsers.add_parser('bbslaves', parents=[copts_parser], help=abiconf_bbslaves.__doc__)
 
     # Subparser for workon command.
     p_workon = subparsers.add_parser('workon', parents=[copts_parser], help=abiconf_workon.__doc__)

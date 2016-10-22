@@ -5,13 +5,27 @@ Each configuration files contains a header with metadata in json format followed
 the configure options supported by the Abinit build system.
 
 The metadata section contains information such as the list of modules that must be loaded
-to configure/execute Abinit on the cluster, a brief description of the options activated
+in order to configure/execute Abinit on the cluster, a brief description of the options activated
 and a list of keywords associated to the configuration file.
+For further info on the metadata section, see [Contributing](#Contributing) section.
 
 The configuration file can be copied directly from this repository or, alternatively,
-one can install the package and use the `abiconf.py` script to search from configure scripts
-by hostname, by keywords. `abiconf.py` also provides commands to automate the configuration/make procedure.
+one can install the package and use the `abiconf.py` script to search for ac file 
+by hostname, by keywords. `abiconf.py` also provides commands to automate the configuration/make procedure
+(see [Using abiconf.py](#Using_abiconf)).
 Contributions from users and sysadmins are welcome.
+
+Note that `abiconf.py` is just a collection of configuration files and it 
+does not aim at becoming a package management tool for Abinit.
+If you need a **real package manager** able to support multiple versions 
+and configurations of software, consider the following projects:
+
+    * [spack](https://github.com/LLNL/spack)
+
+    * [easybuild](https://github.com/hpcugent/easybuild)
+
+Both projects are designed for large supercomputing centers and 
+they already provide configuration files for Abinit.
 
 <!---
 Precompiled versions of Abinit are also available on the conda channel
@@ -22,11 +36,6 @@ Note that, for the time being, the conda versions do not support MPI
 and the binaries are statically linked against the internal version of Blas/Lapack/FFT.
 They are handy especially if you want to try Abinit on your machine but they are not
 supposed to be used for high-performance calculations.
-
-For more advanced approaches to the installation of Abinit on clusters, see
-
-    [spack](https://github.com/LLNL/spack)
-    [easybuild](https://github.com/hpcugent/easybuild)
 -->
 
 ## Getting abiconfig
@@ -37,7 +46,7 @@ From pip
 
 The easiest way to install abiconf is to use `pip`, as follows:
 
-    pip install abiconf
+    pip install abiconfig
 -->
 
 ## From github
@@ -59,7 +68,7 @@ if you have root privileges on the machine.
 
 Please fork the project on gitlab, if you plan to contribute to `abiconfig`,
 
-## Using abiconf.py
+## Using abiconf.py <a name="Using_abiconf"></a>
 
 Use:
 
@@ -94,8 +103,9 @@ to get the list of available commands and
 
 to list the options supported by `command`.
 
-## Contributing
+## Contributing <a name="Contributing"></a>
 
+Fork the repo and add your ac file to the `clusters` directory.
 Each configuration file must start with a metadata section enclosed between two `---` markers.
 The text between the markers represents a dictionary in json format followed by the
 Abinit configure options in normalized form (remove the initial `--` from the option name,

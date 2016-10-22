@@ -9,7 +9,7 @@
 #   "NOTE: This build is not compatible with the Harpertown/Nehalem nodes that must be excluded in the slurm script."
 #],
 #"qtype": "slurm",
-#"qargs": {"exclude": "mb-neh[070,201-212],mb-har[001-014],mb-har[101-116],mb-opt[111-116]"},
+#"qkwargs": {"exclude": "mb-neh[070,201-212],mb-har[001-014],mb-har[101-116],mb-opt[111-116]"},
 #"keywords": ["linux", "gcc", "openmpi", "easybuild", "gompi"],
 #"pre_configure": [
 #  "module purge",

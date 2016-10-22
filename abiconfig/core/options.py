@@ -207,7 +207,7 @@ class ConfigMeta(dict):
     post_configure
     post_make
     qtype
-    qargs
+    qkwargs
     """
 
     reqkey_validator = [
@@ -234,7 +234,7 @@ class ConfigMeta(dict):
              "description": "description",
              "keywords": [""],
              "qtype": "slurm",
-             "qargs": "{}",
+             "qkwargs": "{}",
              "pre_configure": [""],
              "pre_make": [""],
              "post_make": [""],
@@ -377,7 +377,7 @@ class Config(OrderedDict):
         if qtype is None: return "!#/bin/bash"
         template = QueueTemplate.from_qtype(qtype)
         #print(template.supported_qparams)
-        lines = template.substitute(self.meta.get("qargs", {})).splitlines()
+        lines = template.substitute(self.meta.get("qkwargs", {})).splitlines()
         lines.append("\n")
         lines.append("export OMP_NUM_THREADS=1    # Number of OpenMP Threads")
         lines.append("ulimit -s unlimited         # Set stack size to unlimited (if allowed)")

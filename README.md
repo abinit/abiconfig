@@ -29,8 +29,7 @@ For more advanced approaches to the installation of Abinit on clusters, see
     [easybuild](https://github.com/hpcugent/easybuild)
 -->
 
-Getting abiconfig
-=================
+## Getting abiconfig
 
 <!---
 From pip
@@ -41,8 +40,7 @@ The easiest way to install abiconf is to use `pip`, as follows:
     pip install abiconf
 -->
 
-From github
------------
+## From github
 
 The developmental version is available at the [gitlab repo](https://gitlab.abinit.org/gmatteo/abiconfig).
 Clone the repo with:
@@ -61,8 +59,7 @@ if you have root privileges on the machine.
 
 Please fork the project on gitlab, if you plan to contribute to `abiconfig`,
 
-Using abiconf.py
-================
+## Using abiconf.py
 
 Use:
 
@@ -77,7 +74,7 @@ Use:
 
 to find the configuration files containing the keywords: `intel` and `mkl`.
 
-Once you have found a configuration file for your machine in the abiconf database, use:
+Once you have found a configuration file for your machine in the abiconfig database, use:
 
     abiconfig.py workon zenobe.ac
 
@@ -92,3 +89,93 @@ to get the list of available commands and
     abiconfig.py command --help
 
 to list the options supported by `command`.
+
+## Contributing
+
+Each configuration file must start with a metadata section enclosed between two `---` markers.
+The text between the markers represents a dictionary in json format followed by the
+Abinit configure options in normalized form (remove the initial `--` from the option name,
+replace `-` with `_`).
+
+```
+#---
+#{
+#"hostname": "nic4",
+#"author": "J. Doe",
+#"date": "2016-09-30",
+#"description": "Configuration file for nic4. Uses intel compilers, openmpi, mkl (sequential) and external netcdf4/hdf5",
+#"keywords": ["linux", "intel", "openmpi", "mkl", "hdf5"],
+#"qtype": "slurm",
+#"pre_configure": [
+#   "module purge",
+#   "module load openmpi/1.7.5/intel2013_sp1.1.106",
+#   "module load intel/mkl/64/11.1/2013_sp1.1.106",
+#   "module load hdf5/1.8.13/openmpi-1.7.5-intel2013_sp1.1.106",
+#   "module load netcdf/4.3.2/openmpi-1.7.5-intel2013_sp1.1.106"
+# ]
+#}
+#---
+
+# Abinit configure options in normalized form follows.
+
+#install architecture-independent files in PREFIX
+#prefix="~/local/"
+
+# MPI/OpenMP
+with_mpi_prefix="${MPI_HOME}"
+enable_mpi="yes"
+enable_mpi_io="yes"
+enable_openmp="no"
+
+# BLAS/LAPACK provided by MKL (dynamic linking)
+# See https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor
+with_linalg_flavor="mkl"
+with_linalg_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
+```
+
+If possible, try to avoid hard-coded values e.g. use `${MKLROOT}` instead of the full path to the MKL library.
+The user is supposed to load the modules defined in the `pre_configure` section before running `configure`
+and the modules with automatically set these environment variables.
+The big advantage is that one link against a different MKL version by just changing the MKL module
+declared in the json dictionary.
+
+The following keywords must be defined in the json dictionary:
+
+  * hostname
+
+    The name of machine (mandatory). Prefer the short version over the long version
+    e.g. use `hmem` instead of `hmem.ucl.ac.be`
+
+  * date
+
+    Creation date in the format `yyyy-mm-dd` e.g. `2011-12-24` (mandatory)
+
+  * author
+
+    The author of the configuration file (mandatory).
+
+  * description
+
+    String or list of strings with info about the configuration file (mandatory)
+
+  * keywords
+
+    List of strings with tags associated to the configuration file (mandatory).
+    Use `abiconf.py keys` to get the list of keywords already used
+    and try to re-use them for new files.
+
+  * pre\_configure
+
+    List of shell commands to be executed before `configure`.
+    e.g. commands to load modules required to build/run the executables.
+    Optional but highly recommended.
+
+  * post\_configure
+
+    List of shell commands to be executed after `configure`.
+    Optional
+
+  * post\_make
+
+    List of shell commands to be executed after `make`.
+    Optional

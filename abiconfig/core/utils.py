@@ -182,7 +182,7 @@ def find_abinit_toptree(start_path=".", ntrials=20):
     Returns the absolute path of the ABINIT source tree.
     Assume start_path is within the source tree.
 
-    Return None if build tree is not found after ntrials attempts.
+    raise RuntimeError if build tree is not found after ntrials attempts.
     """
     abs_path = os.path.abspath(start_path)
 
@@ -198,5 +198,4 @@ def find_abinit_toptree(start_path=".", ntrials=20):
             abs_path, tail = os.path.split(abs_path)
             trial += 1
 
-    print("Cannot find the ABINIT source tree after %s trials" % ntrials)
-    return None
+    raise RuntimeError("Cannot find the ABINIT source tree after %s trials" % ntrials)

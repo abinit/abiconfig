@@ -13,9 +13,9 @@ import shutil
 
 from pprint import pprint
 from socket import gethostname
-from abiconfig.core.utils import get_ncpus, marquee, is_string, which, chunks
+from abiconfig.core.utils import get_ncpus, marquee, is_string, which, chunks, pprint_table
 from abiconfig.core import termcolor
-from abiconfig.core.termcolor import cprint
+from abiconfig.core.termcolor import cprint, colored
 from abiconfig.core.options import AbinitConfigureOptions, ConfigMeta, Config, ConfigList, get_actemplate_string
 from abiconfig.core import release
 
@@ -60,18 +60,23 @@ def abiconf_new(options):
 def abiconf_opts(options):
     """List available configure options."""
     confopts = AbinitConfigureOptions.from_myoptions_conf()
+
     if options.optnames is None or not options.optnames:
         # Print all options.
-        cprint(marquee("List of available options"), "yellow")
-        for opt in confopts.values():
-            if options.verbose:
-                cprint(marquee(opt.name), "yellow")
-                print(opt)
-            else:
-                print(repr(opt))
+        cprint(marquee("Available options"), "yellow")
+        table = [("name", "default", "status")]
 
         if options.verbose == 0:
+            for opt in confopts.values():
+                table.append((opt.name, str(opt.default), opt.status))
+            pprint_table(table)
             print("\nUse -v for further information")
+
+        else:
+            for opt in confopts.values():
+                cprint(marquee(opt.name), "yellow")
+                print(opt)
+
     else:
         for optname in options.optnames:
             opt = confopts[optname]
@@ -106,7 +111,7 @@ def abiconf_hostname(options):
     """Find configuration files for this hostname."""
 
     def show_hostnames():
-        cprint(marquee("List of available hostnames"), "yellow")
+        cprint(marquee("Available hostnames"), "yellow")
         all_hosts = sorted({conf.meta["hostname"] for conf in configs})
         for chunk in chunks(all_hosts, 7):
             cprint(", ".join(chunk), "blue")
@@ -134,22 +139,25 @@ def abiconf_hostname(options):
 
     return 0
 
-
 def abiconf_list(options):
     """List all configuration files."""
     configs = ConfigList.get_clusters()
-    cprint(marquee("List of available configuration files"), "yellow")
+    width = 92
     for i, config in enumerate(configs):
-        print("[%d] %s" % (i, config.basename))
-        if options.verbose:
-            pprint(config.meta)
-            print(92* "=")
+        if options.verbose == 0:
+            if i == 0: cprint(marquee("Available configuration files"), "yellow")
+            print("[%d] %s" % (i, config.basename))
+        else:
+            cprint(marquee(config.basename, width=width), "yellow")
+            config.cprint()
+            print(width * "=")
+
     if options.verbose == 0: print("\nUse -v for further information")
     return 0
 
 
-def abiconf_get(options):
-    """Get a copy of a configuration file from its basename"""
+def abiconf_show(options):
+    """Find configuration file from its basename and print it to terminal."""
     configs = ConfigList.get_clusters()
     if options.basename is None or not options.basename:
         confopts = AbinitConfigureOptions.from_myoptions_conf()
@@ -157,12 +165,11 @@ def abiconf_get(options):
 
     for i, config in enumerate(configs):
         if config.basename == options.basename:
-            cprint("Copying file to %s" % options.basename, "yellow")
-            shutil.copy(config.path, options.basename)
+            print(config)
             return 0
     else:
-        cprint("Cannot find configuration file for %s" % options.basename, "red")
-        return 1
+        cprint("Cannot find configuration file for `%s`" % options.basename, "red")
+        return abiconf_list(options)
 
 
 def abiconf_keys(options):
@@ -176,22 +183,26 @@ def abiconf_keys(options):
 
         cprint(marquee("Available keywords"), "yellow")
         for chunk in chunks(all_keys, 7):
-            cprint(", ".join(chunk), "blue")
+            cprint(", ".join(chunk), "magenta")
 
     else:
         # Find configuration files containing keywords.
         keys = options.keys
         if is_string(keys): keys = [keys]
         keys = set(keys)
+        nfound = 0
         for conf in configs:
             if keys.issubset(conf.meta["keywords"]):
+                nfound += 1
                 print("")
                 cprint(marquee(conf.basename), "yellow")
                 if options.verbose:
-                    print(conf)
+                    conf.cprint()
                 else:
                     pprint(conf.meta)
-        if options.verbose == 0: print("\nUse -v for further information")
+
+        if options.verbose == 0 and nfound != 0:
+            print("\nUse -v for further information")
 
     return 0
 
@@ -209,7 +220,8 @@ def abiconf_script(options):
         for conf in configs:
             if conf.basename == path: break
         else:
-            raise ValueError("Cannot find %s in internal list" % path)
+            cprint("Cannot find %s in internal list" % path, "red")
+            return abiconf_list(options)
 
     print(conf.get_script_str())
     return 0
@@ -272,7 +284,7 @@ def abiconf_workon(options):
             if conf.basename == confname or conf.path == confname: break
         else:
             cprint("Cannot find configuration file associated to `%s`" % confname, "red")
-            return 1
+            return abiconf_list(options)
 
     if options.verbose:
         #cprint("Reading configuration file %s" % confname, "yellow")
@@ -412,8 +424,8 @@ Usage example:
     # Subparser for list command.
     p_list = subparsers.add_parser('list', parents=[copts_parser], help=abiconf_list.__doc__)
 
-    p_get = subparsers.add_parser('get', parents=[copts_parser], help=abiconf_get.__doc__)
-    p_get.add_argument("basename", nargs="?", default=None, help="Name of the configuration file.")
+    p_show = subparsers.add_parser('show', parents=[copts_parser], help=abiconf_show.__doc__)
+    p_show.add_argument("basename", nargs="?", default=None, help="Name of the configuration file.")
 
     # Subparser for keys command.
     p_keys = subparsers.add_parser('keys', parents=[copts_parser], help=abiconf_keys.__doc__)
@@ -469,8 +481,14 @@ Usage example:
         template = get_actemplate_string()
         for line in template.splitlines():
             if len(line) > 2 and line[0] == "#" and line[1] != " ":
-                cprint(line, "yellow")
+                # Option
+                i = line.find("=")
+                if i != -1:
+                    print(colored(line[:i], "yellow"), line[i:], sep="")
+                else:
+                    cprint(line, "yellow")
             else:
+                # Comment
                 cprint(line, "blue")
         return 0
 

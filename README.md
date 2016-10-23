@@ -40,15 +40,14 @@ supposed to be used for high-performance calculations.
 ## Getting abiconfig
 
 <!---
-From pip
---------
+### From pip
 
 The easiest way to install abiconf is to use `pip`, as follows:
 
     pip install abiconfig
 -->
 
-## From github
+### From github
 
 The developmental version is available at the [gitlab repo](https://gitlab.abinit.org/gmatteo/abiconfig).
 Clone the repo with:
@@ -65,7 +64,7 @@ or
 
 if you have root privileges on the machine.
 
-Please fork the project on gitlab, if you plan to contribute to `abiconfig`,
+Please fork the project on gitlab, if you plan to contribute to `abiconfig`.
 
 ## Using abiconf.py <a name="Using_abiconf"></a>
 
@@ -86,11 +85,26 @@ to find the configuration files containing the keywords: `intel` and `mkl` and
 
 to get the full list of keywords.
 
-Once you have found a configuration file for your machine in the abiconfig database, use:
+Once you have found a configuration file for your machine in the 
+abiconfig database (e.g. manneback-gcc-openmpi.ac), use:
 
-    abiconf.py workon zenobe.ac
+    abiconf.py workon manneback-gcc-openmpi.ac
 
 to compile the code.
+
+It's also possible to generate a submission script template with the syntax:
+
+    abiconf.py script manneback-gcc-openmpi.ac
+
+and print the ac file to terminal with:
+
+    abiconf.py show manneback-gcc-openmpi.ac
+
+Use 
+
+    abiconf.py doc
+
+to get the documentation of the different options.
 
 Use
 

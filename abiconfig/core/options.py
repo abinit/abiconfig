@@ -9,7 +9,7 @@ from collections import OrderedDict, defaultdict
 from pprint import pformat
 from datetime import datetime, date
 from abiconfig.core.utils import is_string, marquee
-from abiconfig.core.termcolor import cprint
+from abiconfig.core.termcolor import cprint, colored
 
 
 def rmquotes(s):
@@ -349,12 +349,17 @@ class Config(OrderedDict):
     def __str__(self):
         return self.string
 
-    #def to_string(self):
-    #    """String representation."""
-    #    lines = [self.path, " "]
-    #    lines.extend([pformat(self.meta, indent=2), " "])
-    #    lines.extend("%s=%s" % (k, v) for k, v in self.items())
-    #    return "\n".join(lines)
+    def cprint(self):
+        """Colored printout."""
+        for line in self.string.splitlines():
+            if line.startswith("#"):
+                cprint(line, "blue")
+            else:
+                i = line.find("=")
+                if i == -1:
+                    print(line)
+                else:
+                    print(colored(line[:i], "yellow"), line[i:], sep="")
 
     def _parse_meta(self, s):
         self.meta = ConfigMeta(**json.loads(s))
@@ -372,21 +377,35 @@ class Config(OrderedDict):
             raise ValueError("Wrong metadata section in file: %s\n%s" % (self.path, "\n".join(errors)))
 
     def get_script_str(self):
+        """
+        Return string with submission script template.
+        """
         from .qtemplates import QueueTemplate
         qtype = self.meta.get("qtype")
         if qtype is None: return "!#/bin/bash"
         template = QueueTemplate.from_qtype(qtype)
         #print(template.supported_qparams)
         lines = template.substitute(self.meta.get("qkwargs", {})).splitlines()
-        lines.append("\n")
-        lines.append("export OMP_NUM_THREADS=1    # Number of OpenMP Threads")
-        lines.append("ulimit -s unlimited         # Set stack size to unlimited (if allowed)")
+        app = lines.append
 
-        #lines.append("export ABINIT_PREFIX=/path/to/abinit_directory")
-        #lines.append("mpirun -n abinit < run.files > run.log 2> run.err")
+        # Stask size
+        app("\n")
+        app("ulimit -s unlimited  # Set stack size to unlimited (if allowed)")
 
-        for l in self.meta["pre_configure"]:
-            lines.append(l)
+        # OpenMP section
+        if qtype == "slurm":
+            app("export OMP_NUM_THREADS=$SLURM_NTASKS_PER_NODE  # Number of OpenMP Threads")
+        else:
+            app("export OMP_NUM_THREADS=1  # Number of OpenMP Threads")
+        app("\n")
+
+        # Load modules.
+        for l in self.meta.get("pre_configure", []):
+            app(l)
+
+        # Abinit section
+        #app("ABIPREFIX=/path_to/abinit_build_directory")
+        #app("mpirun -n ${ABIPREFIX}/abinit < run.files > run.log 2> run.err")
 
         return "\n".join(lines)
 

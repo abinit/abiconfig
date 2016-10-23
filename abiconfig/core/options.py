@@ -4,11 +4,12 @@ import sys
 import os
 import re
 import json
+import itertools
 
 from collections import OrderedDict, defaultdict
 from pprint import pformat
 from datetime import datetime, date
-from abiconfig.core.utils import is_string, marquee
+from abiconfig.core.utils import is_string, marquee, find_abinit_toptree
 from abiconfig.core.termcolor import cprint, colored
 
 
@@ -322,8 +323,8 @@ class Config(OrderedDict):
                 new._parse_meta("".join(meta))
             except:
                 # FIXME: This is to support config file with metadata (e.g. buildbot ac files)
-                raise
-                pass
+                #raise
+                new.meta = {}
 
             # FIXME: Add support for
             """
@@ -376,9 +377,12 @@ class Config(OrderedDict):
         if errors:
             raise ValueError("Wrong metadata section in file: %s\n%s" % (self.path, "\n".join(errors)))
 
-    def get_script_str(self):
+    def get_script_str(self, with_abinit=True):
         """
         Return string with submission script template.
+
+        Args:
+            with_abinit: True if script should contain section invoking abinit.
         """
         from .qtemplates import QueueTemplate
         qtype = self.meta.get("qtype")
@@ -407,10 +411,33 @@ class Config(OrderedDict):
         #app("ABIPREFIX=/path_to/abinit_build_directory")
         #app("mpirun -n ${ABIPREFIX}/abinit < run.files > run.log 2> run.err")
 
+        app(" ")
         return "\n".join(lines)
 
+    def get_runtests_script_str(self):
+        """
+        Return string with submission script to execute
+        the Abinit test suite with runtests.py
+        """
+        lines = self.get_script_str(with_abinit=False).splitlines()
+        app = lines.append
 
-_cache = {}
+        mpiprocs_list = [1, 2, 4, 8, 10]
+        ompthreads_list = [1, 2]
+
+        app("# Runtests section:")
+        app("RUNTESTS='../../tests/runtests.py'")
+
+        for mpi_nprocs, omp_nthreads in itertools.product(mpiprocs_list, ompthreads_list):
+            stdout = "runtests_MPI%s_OMP%s.stdout" % (mpi_nprocs, omp_nthreads)
+            stderr = "runtests_MPI%s_OMP%s.stderr" % (mpi_nprocs, omp_nthreads)
+            cmd = "$RUNTESTS -n{} -o{} -j1 > {} 2> {}".format(
+                mpi_nprocs, omp_nthreads, stdout, stderr)
+            app(cmd)
+
+        app(" ")
+        return "\n".join(lines)
+
 
 class ConfigList(list):
     """
@@ -418,15 +445,17 @@ class ConfigList(list):
     """
     @classmethod
     def get_clusters(cls):
-        if "cluster" in _cache: return _cache["clusters"]
-        _cache["clusters"] = ConfigList.from_mydirs(["clusters"])
-        return _cache["clusters"]
+        """
+        Parse the configuration files found in the abiconfig clusters directory.
+        """
+        return cls.from_mydirs(["clusters"])
 
-    #@classmethod
-    #def get_buildbot_slaves(cls):
-    #    if hasattr(cls, "_cached_clusters"): return cls._cached_clusters
-    #    cls._cached_clusters = ConfigList.from_mydirs(["clusters"])
-    #    return cls._cached_clusters
+    @classmethod
+    def get_buildbot_configs(cls, start_path="."):
+        abinit_top = find_abinit_toptree(start_path=start_path)
+        bbconfig_dir = os.path.join(abinit_top, "doc", "build", "config-examples")
+        cprint("Looking for buildbot AC files in %s" % bbconfig_dir, "yellow")
+        return cls.from_dir(bbconfig_dir)
 
     @classmethod
     def get_config_from_name(cls, acname):
@@ -481,7 +510,7 @@ class ConfigList(list):
                 raise
         return new
 
-    def bbcoverage(self, options, verbose=0):
+    def buildbot_coverage(self, options, verbose=0):
         # Init mapping option.name --> [(config0.path, value0), (config1.path, value1), ...]
         # This dict is used to test if all the options are tested in the configuration files:
         #       - empty list --> the option is never used.

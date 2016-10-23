@@ -13,36 +13,22 @@ import shutil
 
 from pprint import pprint
 from socket import gethostname
-from abiconfig.core.utils import get_ncpus, marquee, is_string, which, chunks, pprint_table
+from abiconfig.core.utils import get_ncpus, marquee, is_string, which, chunks, pprint_table, find_abinit_toptree
 from abiconfig.core import termcolor
 from abiconfig.core.termcolor import cprint, colored
 from abiconfig.core.options import AbinitConfigureOptions, ConfigMeta, Config, ConfigList, get_actemplate_string
 from abiconfig.core import release
 
 
-def find_top_srctree(start_path, ntrials=10):
+def get_configs(options):
     """
-    Returns the absolute path of the ABINIT source tree.
-    Assume start_path is within the source tree.
-
-    Raises:
-        `RuntimeError` if build tree is not found after ntrials attempts.
+    Return list of configuration files found if clusters if -b is not used else
+    buildbot configuration files.
     """
-    abs_path = os.path.abspath(start_path)
-
-    trial = 0
-    while trial <= ntrials:
-        config_ac = os.path.join(abs_path, "configure.ac")
-        abinit_f90 = os.path.join(abs_path, "src", "98_main", "abinit.F90")
-        # Check if we are in the top of the ABINIT source tree
-        found = os.path.isfile(config_ac) and os.path.isfile(abinit_f90)
-        if found:
-            return abs_path
-        else:
-            abs_path, tail = os.path.split(abs_path)
-            trial += 1
-
-    raise RuntimeError("Cannot find the ABINIT source tree after %s trials" % ntrials)
+    if getattr(options, "buildbot", False):
+        return ConfigList.get_buildbot_configs()
+    else:
+        return ConfigList.get_clusters()
 
 
 def abiconf_new(options):
@@ -93,7 +79,7 @@ def abiconf_bbcov(options):
     if paths is None or not paths:
         # No argument provided --> Find directory with buildbot ac files and read them.
         # Assume we are inside an Abinit package.
-        abinit_top = find_top_srctree(".", ntrials=20)
+        abinit_top = find_abinit_toptree()
         bbconfig_dir = os.path.join(abinit_top, "doc", "build", "config-examples")
         cprint("Looking for buildbot slave ac files in: %s" % bbconfig_dir, "yellow")
         configs = ConfigList.from_dir(bbconfig_dir)
@@ -104,7 +90,8 @@ def abiconf_bbcov(options):
         else:
             configs = ConfigList.from_files(paths)
 
-    return configs.bbcoverage(AbinitConfigureOptions.from_myoptions_conf(), verbose=options.verbose)
+    return configs.buildbot_coverage(AbinitConfigureOptions.from_myoptions_conf(),
+                                     verbose=options.verbose)
 
 
 def abiconf_hostname(options):
@@ -123,7 +110,7 @@ def abiconf_hostname(options):
     hostname = gethostname() if options.hostname is None else options.hostname
     #print("Finding configuration files for hostname: `%s`" % hostname)
     nfound = 0
-    configs = ConfigList.get_clusters()
+    configs = get_configs(options)
     for conf in configs:
         # TODO: Should handle foo.bar.be case
         #if not (hostname in conf.meta["keywords"] or hostname in conf.basename):
@@ -131,7 +118,10 @@ def abiconf_hostname(options):
             continue
         nfound += 1
         cprint(marquee(conf.basename), "yellow")
-        print(conf)
+        if options.verbose:
+            conf.cprint()
+        else:
+            pprint(conf.meta)
 
     if nfound == 0:
         cprint("No configuration file for `%s`. Will print internal list." % hostname, "red")
@@ -141,7 +131,8 @@ def abiconf_hostname(options):
 
 def abiconf_list(options):
     """List all configuration files."""
-    configs = ConfigList.get_clusters()
+    configs = get_configs(options)
+
     width = 92
     for i, config in enumerate(configs):
         if options.verbose == 0:
@@ -158,11 +149,11 @@ def abiconf_list(options):
 
 def abiconf_show(options):
     """Find configuration file from its basename and print it to terminal."""
-    configs = ConfigList.get_clusters()
     if options.basename is None or not options.basename:
         confopts = AbinitConfigureOptions.from_myoptions_conf()
         return abiconf_list(options)
 
+    configs = get_configs(options)
     for i, config in enumerate(configs):
         if config.basename == options.basename:
             print(config)
@@ -174,7 +165,7 @@ def abiconf_show(options):
 
 def abiconf_keys(options):
     """Find configuration files containing keywords."""
-    configs = ConfigList.get_clusters()
+    configs = get_configs(options)
     if options.keys is None or not options.keys:
         # Print list of available keywords.
         all_keys = set()
@@ -255,10 +246,9 @@ def abiconf_bbslaves(options):
     """
     Show the list of configuration files used on the test farm.
     """
-    abinit_top = find_top_srctree(".", ntrials=20)
-    bbconfig_dir = os.path.join(abinit_top, "doc", "build", "config-examples")
-    #print(bbconfig_dir)
-    configs = ConfigList.from_dir(bbconfig_dir)
+    configs = ConfigList.get_buildbot_configs()
+    for config in configs:
+        config.cprint()
 
     return 0
 
@@ -269,15 +259,19 @@ def abiconf_workon(options):
     in the autoconf file.
     """
     # If confname is not specified, print full list and return
-    configs = ConfigList.get_clusters()
     if options.confname is None:
         print("Available configuration files.")
         return abiconf_list(options)
 
+    configs = get_configs(options)
+
     confname = options.confname
     if os.path.exists(confname):
-        # Init conf from local file
-        conf = Config.from_file(confname)
+        if os.path.isfile(confname):
+            # Init conf from local file
+            conf = Config.from_file(confname)
+        else:
+            raise RuntimeError("Found directory with same name as AC file!")
     else:
         # Find it in the abiconf database.
         for conf in configs:
@@ -292,7 +286,7 @@ def abiconf_workon(options):
         print(conf)
 
     # Script must be executed inside the abinit source tree.
-    #abinit_top = find_top_srctree(".", ntrials=0)
+    #abinit_top = find_abinit_toptree()
 
     cwd = os.getcwd()
     workdir = os.path.join(cwd, "_build_" + confname)
@@ -347,18 +341,18 @@ def abiconf_workon(options):
 
         for cmd in conf.meta.get("post_make", []):
             fh.write("%s\n" % cmd)
-
-        fh.write("make check\n")
+        #fh.write("make check\n")
 
         fh.seek(0)
 
-        cprint("abiconf script:", "yellow")
-        for line in fh.readlines():
-            print(line, end="")
+        if options.verbose:
+            cprint("abiconf script:", "yellow")
+            for line in fh.readlines():
+                print(line, end="")
 
     retcode = 0
     if not options.make:
-        cprint("Use `source %s` to configure/make" % script, "yellow")
+        cprint("Use `source %s` to configure/make" % os.path.relpath(script), "yellow")
     else:
 	# The code gets stuck here if -jN. Should find better approach
         os.chdir(workdir)
@@ -372,6 +366,10 @@ def abiconf_workon(options):
                     cprint("Errors found in %s" % stderr_path, "red")
                     cprint(err, "red")
         os.chdir(cwd)
+
+    # Write submission script for runtests.py
+    with open(os.path.join(workdir, "launch_runtests_job.sh"), "wt") as fh:
+        fh.write(conf.get_runtests_script_str())
 
     return retcode
 
@@ -392,7 +390,10 @@ Usage example:
     abiconf.py get [ACNAME]          => Get a copy of the configuration file.
     abiconf.py new [FILENAME]        => Generate template file.
     abiconf.py convert acfile        => Add metadata section to an old autoconf file.
-    abiconf.py bbcov [DIRorFILEs]    => Test autoconf options coverage (option for developers).
+
+Options for developers
+    abiconf.py bbcov    [DIRorFILEs]   => Test autoconf options coverage
+    abiconf.py bbslaves                => Test autoconf options coverage
 """
 
     def show_examples_and_exit(error_code=1):
@@ -407,6 +408,12 @@ Usage example:
                               help='Verbose, can be supplied multiple times to increase verbosity.')
     copts_parser.add_argument('--no-colors', default=False, action="store_true", help='Disable ASCII colors.')
 
+    # Parent parser for command that have a `buildbot` variant.
+    bb_parser = argparse.ArgumentParser(add_help=False)
+    bb_parser.add_argument('-b', '--buildbot', default=False, action='store_true',
+                           help=("Activate buildbot mode. Configuration files are read from "
+                                 "~abinit/doc/build/config-examples"))
+
     # Build the main parser.
     parser = argparse.ArgumentParser(epilog=str_examples(), formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('-V', '--version', action='version', version=release.__version__)
@@ -415,20 +422,20 @@ Usage example:
     subparsers = parser.add_subparsers(dest='command', help='sub-command help', description="Valid subcommands")
 
     # Subparser for hostname command.
-    p_hostname = subparsers.add_parser('hostname', parents=[copts_parser], help=abiconf_hostname.__doc__)
+    p_hostname = subparsers.add_parser('hostname', parents=[copts_parser, bb_parser], help=abiconf_hostname.__doc__)
     p_hostname.add_argument("hostname", nargs="?", default=None,
                             help="Find configuration file for this hostname. If not given hostname is autodetected.")
     p_hostname.add_argument("-s", "--show-hostnames", default=False, action="store_true",
                             help="List available hostnames.")
 
     # Subparser for list command.
-    p_list = subparsers.add_parser('list', parents=[copts_parser], help=abiconf_list.__doc__)
+    p_list = subparsers.add_parser('list', parents=[copts_parser, bb_parser], help=abiconf_list.__doc__)
 
-    p_show = subparsers.add_parser('show', parents=[copts_parser], help=abiconf_show.__doc__)
+    p_show = subparsers.add_parser('show', parents=[copts_parser, bb_parser], help=abiconf_show.__doc__)
     p_show.add_argument("basename", nargs="?", default=None, help="Name of the configuration file.")
 
     # Subparser for keys command.
-    p_keys = subparsers.add_parser('keys', parents=[copts_parser], help=abiconf_keys.__doc__)
+    p_keys = subparsers.add_parser('keys', parents=[copts_parser, bb_parser], help=abiconf_keys.__doc__)
     p_keys.add_argument("keys", nargs="*", default=None,
                             help="Find configuration files with these keywords. "
                                  "Show available keywords if no value is provided.")
@@ -453,15 +460,15 @@ Usage example:
     p_opts = subparsers.add_parser('opts', parents=[copts_parser], help=abiconf_opts.__doc__)
     p_opts.add_argument('optnames', nargs="*", default=None, help="Select options to show.")
 
-    # Subparser for bbcov command.
+    # Subparser for bb_cov command.
     p_bbcov = subparsers.add_parser('bbcov', parents=[copts_parser], help=abiconf_bbcov.__doc__)
     p_bbcov.add_argument('paths', nargs="*", default=None, help="ac file or directory with ac files.")
 
-    # Subparser for bbslaves command.
-    #p_bbslaves = subparsers.add_parser('bbslaves', parents=[copts_parser], help=abiconf_bbslaves.__doc__)
+    # Subparser for bb_slaves command.
+    p_bbslaves = subparsers.add_parser('bbslaves', parents=[copts_parser], help=abiconf_bbslaves.__doc__)
 
     # Subparser for workon command.
-    p_workon = subparsers.add_parser('workon', parents=[copts_parser], help=abiconf_workon.__doc__)
+    p_workon = subparsers.add_parser('workon', parents=[copts_parser, bb_parser], help=abiconf_workon.__doc__)
     p_workon.add_argument('confname', nargs="?", default=None,
                           help="Configuration file to be used. Either abiconf basename or local file.")
     p_workon.add_argument("-m", '--make', action="store_true", default=False, help="Run configure/make. Default: False.")

@@ -4,7 +4,7 @@ Utilities. Some routines are taken from https://github.com/materialsvirtuallab/m
 from __future__ import unicode_literals, division, print_function, absolute_import
 
 import sys
-
+import os
 
 def get_ncpus():
     """
@@ -175,3 +175,28 @@ def pprint_table(table, out=sys.stdout, rstrip=False):
             col = row[i].rjust(col_paddings[i] + 2)
             out.write(col)
         out.write("\n")
+
+
+def find_abinit_toptree(start_path=".", ntrials=20):
+    """
+    Returns the absolute path of the ABINIT source tree.
+    Assume start_path is within the source tree.
+
+    Return None if build tree is not found after ntrials attempts.
+    """
+    abs_path = os.path.abspath(start_path)
+
+    trial = 1
+    while trial <= ntrials:
+        config_ac = os.path.join(abs_path, "configure.ac")
+        abinit_f90 = os.path.join(abs_path, "src", "98_main", "abinit.F90")
+        # Check if we are in the top of the ABINIT source tree
+        found = os.path.isfile(config_ac) and os.path.isfile(abinit_f90)
+        if found:
+            return abs_path
+        else:
+            abs_path, tail = os.path.split(abs_path)
+            trial += 1
+
+    print("Cannot find the ABINIT source tree after %s trials" % ntrials)
+    return None

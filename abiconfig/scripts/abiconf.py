@@ -239,17 +239,6 @@ def abiconf_convert(options):
     return 0
 
 
-def abiconf_bbslaves(options):
-    """
-    Show the list of configuration files used on the test farm.
-    """
-    configs = ConfigList.get_buildbot_configs()
-    for config in configs:
-        config.cprint()
-
-    return 0
-
-
 def abiconf_workon(options):
     """
     Compile the code with the settings and the modules specified
@@ -396,7 +385,6 @@ Usage example:
 
 Options for developers
     abiconf.py bbcov    [DIRorFILEs]   => Test autoconf options coverage
-    abiconf.py bbslaves                => Test autoconf options coverage
 """
 
     def show_examples_and_exit(error_code=1):
@@ -466,9 +454,6 @@ Options for developers
     # Subparser for bb_cov command.
     p_bbcov = subparsers.add_parser('bbcov', parents=[copts_parser], help=abiconf_bbcov.__doc__)
     p_bbcov.add_argument('paths', nargs="*", default=None, help="ac file or directory with ac files.")
-
-    # Subparser for bb_slaves command.
-    p_bbslaves = subparsers.add_parser('bbslaves', parents=[copts_parser], help=abiconf_bbslaves.__doc__)
 
     # Subparser for workon command.
     p_workon = subparsers.add_parser('workon', parents=[copts_parser, bb_parser], help=abiconf_workon.__doc__)

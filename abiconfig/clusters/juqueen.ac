@@ -1,3 +1,19 @@
+#---
+#{
+#"hostname": "juqueen",
+#"author": "M. Giantomassi",
+#"date": "2016-09-30",
+#"description": "Configuration file for juqueen. WARNING: Under testing",
+#"keywords": ["ppc", "xlf", "bluegene"],
+#"qtype": "bluegene",
+#"pre_configure": [
+#]
+#}
+#---
+
+#install architecture-independent files in PREFIX
+#prefix="~/local/"
+
 enable_mpi="yes"
 enable_mpi_io="yes"
 with_mpi_prefix="/bgsys/drivers/ppcfloor/comm/xl/"

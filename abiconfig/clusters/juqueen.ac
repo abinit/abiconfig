@@ -1,0 +1,15 @@
+enable_mpi="yes"
+enable_mpi_io="yes"
+with_mpi_prefix="/bgsys/drivers/ppcfloor/comm/xl/"
+
+enable_openmp="yes"
+FCFLAGS_OPENMP="-qsmp=omp -qthreaded"
+
+#FCFLAGS="-O2 -qarch=qp -qtune=qp -qsuppress=1520-031:1520-003"
+#FCFLAGS="-O2 -qarch=qp -qtune=qp"
+FCFLAGS="-O3 -qstrict -qarch=qp -qtune=qp"
+enable_fc_wrapper="yes"
+
+with_linalg_flavor="netlib"
+with_dft_flavor="none"
+enable_gw_dpc="yes"

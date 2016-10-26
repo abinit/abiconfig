@@ -58,3 +58,7 @@ with_dft_flavor="libxc"
 with_trio_flavor="netcdf"
 with_netcdf_incs="-I/opt/cray/netcdf-hdf5parallel/4.4.0/GNU/5.1/include"
 with_netcdf_libs="-L/opt/cray/netcdf-hdf5parallel/4.4.0/GNU/5.1/lib -lnetcdff -L/opt/cray/hdf5/1.8.16/GNU/5.1/lib -lnetcdf"
+
+# Disable optimization in directories containing big F90 files (efficiency is not critical here)
+fcflags_opt_20_datashare="-O0"
+fcflags_opt_43_ptgroups="-O0"

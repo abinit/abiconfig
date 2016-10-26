@@ -105,7 +105,6 @@ def abiconf_hostname(options):
         return 0
 
     hostname = gethostname() if options.hostname is None else options.hostname
-    #print("Finding configuration files for hostname: `%s`" % hostname)
     nfound = 0
     configs = get_configs(options)
     for conf in configs:
@@ -123,6 +122,8 @@ def abiconf_hostname(options):
     if nfound == 0:
         cprint("No configuration file for `%s`. Will print internal list." % hostname, "red")
         show_hostnames()
+    else:
+        if options.verbose == 0: print("\nUse -v for further information")
 
     return 0
 

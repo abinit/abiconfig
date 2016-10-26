@@ -408,8 +408,9 @@ class Config(OrderedDict):
             app(l)
 
         # Abinit section
-        #app("ABIPREFIX=/path_to/abinit_build_directory")
-        #app("mpirun -n ${ABIPREFIX}/abinit < run.files > run.log 2> run.err")
+        #if with_abinit:
+        #    app("ABIPREFIX=/path_to/abinit_build_directory")
+        #    app("mpirun -n ${ABIPREFIX}/abinit < run.files > run.log 2> run.err")
 
         app(" ")
         return "\n".join(lines)
@@ -425,7 +426,7 @@ class Config(OrderedDict):
         mpiprocs_list = [1, 2, 4, 8, 10]
         ompthreads_list = [1, 2]
 
-        app("# Runtests section:")
+        app("# Runtests section")
         app("RUNTESTS='../../tests/runtests.py'")
 
         for mpi_nprocs, omp_nthreads in itertools.product(mpiprocs_list, ompthreads_list):

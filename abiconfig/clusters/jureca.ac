@@ -58,3 +58,8 @@ with_fft_libs="-L"${MKLROOT}"/mkl/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_
 #with_libxc_libs="-L"${EBROOTLIBXC}"/lib -lxcf90 -lxc"
 
 with_trio_flavor="netcdf+etsf_io"
+
+
+# Disable optimization in directories containing big F90 files (efficiency is not critical here)
+fcflags_opt_20_datashare="-O0"
+fcflags_opt_43_ptgroups="-O0"

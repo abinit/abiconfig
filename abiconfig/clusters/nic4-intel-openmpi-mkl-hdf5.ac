@@ -44,3 +44,8 @@ with_netcdf_libs="-L${NETCDFDIR} -lnetcdff -L${NETCDFDIR} -lnetcdf -lnetcdf"
 
 # Use double precision in GW code
 enable_gw_dpc="yes"
+
+
+# Disable optimization in directories containing big F90 files (efficiency is not critical here)
+fcflags_opt_20_datashare="-O0"
+fcflags_opt_43_ptgroups="-O0"

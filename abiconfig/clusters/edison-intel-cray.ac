@@ -51,3 +51,8 @@ enable_netcdf="yes"
 
 #with_wannier90_bins="/usr/common/usg/wannier90/1.2-2/bin"
 #with_wannier90_libs="-L/usr/common/usg/wannier90/1.2-2/lib -lwannier"
+
+
+# Disable optimization in directories containing big F90 files (efficiency is not critical here)
+fcflags_opt_20_datashare="-O0"
+fcflags_opt_43_ptgroups="-O0"

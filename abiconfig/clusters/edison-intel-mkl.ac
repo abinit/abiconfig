@@ -46,3 +46,7 @@ enable_netcdf="yes"
 
 with_dft_flavor="libxc"
 
+
+# Disable optimization in directories containing big F90 files (efficiency is not critical here)
+fcflags_opt_20_datashare="-O0"
+fcflags_opt_43_ptgroups="-O0"

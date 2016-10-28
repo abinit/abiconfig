@@ -10,6 +10,7 @@ sudo: false
 # Install packages
 install:
   #- conda install --yes python=$TRAVIS_PYTHON_VERSION nose
+  - pip install nose scripttest
   - python setup.py install
 
 # Command to run tests

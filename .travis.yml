@@ -4,19 +4,21 @@ python:
   - "3.4"
   - "3.5"
 
-# command to install dependencies
+# Command to install dependencies
 sudo: false
 
 # Install packages
 install:
-  #- conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib nose dateutil pandas statsmodels
+  #- conda install --yes python=$TRAVIS_PYTHON_VERSION nose
   - python setup.py install
 
-# command to run tests
+# Command to run tests
 script: nosetests -v 
+
 branches:
     only:
         - master
+
 notifications:
     email:
         recipients:
@@ -25,5 +27,5 @@ notifications:
         on_failure: always
 
 # Calculate coverage
-# after_success:
-#   - coveralls --config_file .coveragerc
+#after_success:
+#       - coveralls --config_file .coveragerc

@@ -90,7 +90,7 @@ abiconfig database (e.g. `manneback-gcc-openmpi.ac`), use:
 
     abiconf.py workon manneback-gcc-openmpi.ac
 
-to create the build directory and following the istruction reported on the terminal to configure and
+to create the build directory, then follow the istruction reported on the terminal to configure and
 compile the code.
 
 It's also possible to generate a submission script template with the syntax:
@@ -231,4 +231,4 @@ The following keywords must be defined in the json dictionary:
     ```
         #SBATCH --exclude=mb-neh[070,201-212],mb-har[001-014],mb-har[101-116],mb-opt[111-116]
     ```
-    See core.qtemplate.py for the list of options that can be specified for each `qtype`.
+    See `abiconfig.core.qtemplate` for the list of options that can be specified for each `qtype`.

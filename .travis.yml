@@ -3,7 +3,7 @@ python:
   - "2.7"
   - "3.4"
   - "3.5"
-  - "3.6"
+  #- "3.6"
 
 # Command to install dependencies
 sudo: false
@@ -11,11 +11,11 @@ sudo: false
 # Install packages
 install:
   #- conda install --yes python=$TRAVIS_PYTHON_VERSION nose
-  - pip install nose scripttest
+  - pip install pytest scripttest
   - python setup.py install
 
 # Command to run tests
-script: nosetests -v 
+script: py.test -v
 
 branches:
     only:

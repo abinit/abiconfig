@@ -1,0 +1,29 @@
+language: python
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+
+# command to install dependencies
+sudo: false
+
+# Install packages
+install:
+  #- conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib nose dateutil pandas statsmodels
+  - python setup.py install
+
+# command to run tests
+script: nosetests -v 
+branches:
+    only:
+        - master
+notifications:
+    email:
+        recipients:
+            - gmatteo@gmail.com
+        on_success: change
+        on_failure: always
+
+# Calculate coverage
+# after_success:
+#   - coveralls --config_file .coveragerc

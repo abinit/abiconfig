@@ -110,6 +110,7 @@ def abiconf_hostname(options):
     for conf in configs:
         # TODO: Should handle foo.bar.be case
         #if not (hostname in conf.meta["keywords"] or hostname in conf.basename):
+        #print(conf)
         if not hostname in conf.meta["hostname"]:
             continue
         nfound += 1

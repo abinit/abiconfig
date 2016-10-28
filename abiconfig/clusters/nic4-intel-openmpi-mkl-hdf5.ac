@@ -11,7 +11,8 @@
 #   "module load openmpi/1.7.5/intel2013_sp1.1.106",
 #   "module load intel/mkl/64/11.1/2013_sp1.1.106",
 #   "module load hdf5/1.8.13/openmpi-1.7.5-intel2013_sp1.1.106",
-#   "module load netcdf/4.3.2/openmpi-1.7.5-intel2013_sp1.1.106"
+#   "module load netcdf/4.3.2/openmpi-1.7.5-intel2013_sp1.1.106",
+#   "module load slurm/14.03.11"
 # ]
 #}
 #---

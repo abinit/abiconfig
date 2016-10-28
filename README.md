@@ -1,6 +1,6 @@
 ## About
 
-This repo is a holding area for configuration files used to compile Abinit on clusters.
+This repo is a holding area for configuration files used to configure/compile Abinit on clusters.
 Each configuration files contains a header with metadata in json format followed by
 the configure options supported by the Abinit build system.
 

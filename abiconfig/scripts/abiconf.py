@@ -298,7 +298,7 @@ def abiconf_workon(options):
     # Write shell script to start new with modules and run it.
     has_nag = "nag" in conf.meta["keywords"]
     nthreads = options.jobs
-    if nthreads == 0: nthreads = get_ncpus()
+    if nthreads == 0: nthreads = max(1, get_ncpus() // 2)
 
     with open(script, "w+") as fh:
         fh.write("#!/bin/bash\n")

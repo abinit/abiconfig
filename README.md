@@ -1,3 +1,8 @@
+
+[![Build Status](https://travis-ci.org/abinit/abiconfig.svg?branch=master)](https://travis-ci.org/abinit/abiconfig)
+
+
+
 ## About
 
 This repo is a holding area for configuration files used to configure/compile Abinit on clusters.
@@ -10,12 +15,12 @@ and a list of keywords associated to the configuration file.
 For further information on the metadata section, see [Contributing](#Contributing) section.
 
 The configuration file can be copied directly from this repository or, alternatively,
-one can install the package and use the `abiconf.py` script to search for ac files 
-by hostname, by keywords. `abiconf.py` also provides commands to automate the configuration/make procedure
+one can install the package and use the ``abiconf.py`` script to search for ac files 
+by hostname, by keywords. ``abiconf.py`` also provides commands to automate the configuration/make procedure
 and generate templates for job scripts (see [Using abiconf.py](#Using_abiconf)).
 Contributions from users and sysadmins are welcome.
 
-Note that `abiconf.py` is just a collection of configuration files and 
+Note that ``abiconf.py`` is just a collection of configuration files and 
 does not aim at becoming a package management tool for Abinit.
 If you need a **real package manager** able to support multiple versions 
 and configurations of software, consider the following projects:
@@ -26,16 +31,14 @@ and configurations of software, consider the following projects:
 Both projects are designed for large supercomputing centers and 
 they already provide configuration files to build Abinit.
 
-<!---
-Precompiled versions of Abinit are also available on the conda channel
+Precompiled versions of Abinit are also available on the conda channel:
 
-    conda install abinit -c gmatteo
+    $ conda install abinit -c gmatteo
 
-Note that, for the time being, the conda versions do not support MPI
+Note that, for the time being, these versions do not support MPI
 and the binaries are statically linked against the internal version of Blas/Lapack/FFT.
-They are handy especially if you want to try Abinit on your machine but they are not
+These builds are useful especially if you want to try Abinit on your machine but they are not
 supposed to be used for high-performance calculations.
--->
 
 ## Getting abiconfig
 
@@ -52,15 +55,15 @@ The easiest way to install abiconf is to use `pip`, as follows:
 The developmental version is available at the [github repo](https://github.com/abinit/abiconfig).
 Clone the repo with:
 
-    git clone https://github.com/abinit/abiconfig.git
+    $ git clone https://github.com/abinit/abiconfig.git
 
 After cloning the source, cd to the abiconfig directory and type:
 
-    python setup.py install --user
+    $ python setup.py install --user
 
 or
 
-    sudo python setup.py install
+    $ sudo python setup.py install
 
 if you have root privileges on the machine.
 
@@ -70,60 +73,60 @@ Please fork the project on github, if you plan to contribute to `abiconfig`.
 
 Use:
 
-    abiconf.py hostname zenobe
+    $ abiconf.py hostname zenobe
 
-to list the configuration files available for the `zenobe` machine.
+to list the configuration files available for the ``zenobe`` machine.
 If the machine name is not provided, the full list of configuration files is printed.
 
 Use:
 
-    abiconf.py keys intel mkl
+    $ abiconf.py keys intel mkl
 
-to find the configuration files containing the keywords: `intel` and `mkl` and
+to find the configuration files containing the keywords: ``intel`` and ``mkl`` and
 
-    abiconf.py keys
+    $ abiconf.py keys
 
 to get the full list of keywords.
 
 Once you have found a configuration file for your machine in the 
-abiconfig database (e.g. `manneback-gcc-openmpi.ac`), use:
+abiconfig database (e.g. ``manneback-gcc-openmpi.ac``), use:
 
-    abiconf.py workon manneback-gcc-openmpi.ac
+    $ abiconf.py workon manneback-gcc-openmpi.ac
 
 to create the build directory, then follow the istruction reported on the terminal to configure and
 compile the code.
 
 It's also possible to generate a submission script template with the syntax:
 
-    abiconf.py script manneback-gcc-openmpi.ac
+    $ abiconf.py script manneback-gcc-openmpi.ac
 
 and print the ac file to terminal with:
 
-    abiconf.py show manneback-gcc-openmpi.ac
+    $ abiconf.py show manneback-gcc-openmpi.ac
 
 Use 
 
-    abiconf.py doc
+    $ abiconf.py doc
 
 to get the documentation of the different options.
 
 Use
 
-    abiconf.py --help
+    $ abiconf.py --help
 
 to get the list of available commands and
 
-    abiconf.py command --help
+    $ abiconf.py command --help
 
-to list the options supported by `command`.
+to list the options supported by ``command``.
 
 ## Contributing <a name="Contributing"></a>
 
-Fork the repo and add your ac file to the `clusters` directory.
-Each configuration file must start with a metadata section enclosed between two `---` markers.
+Fork the repo and add your ac file to the ``clusters`` directory.
+Each configuration file must start with a metadata section enclosed between two ``---`` markers.
 The text between the markers represents a dictionary in json format followed by the
-Abinit configure options in normalized form (remove the initial `--` from the option name,
-replace `-` with `_`).
+Abinit configure options in normalized form (remove the initial ``--`` from the option name,
+replace ``-`` with ``_``).
 Example:
 
 ```
@@ -162,8 +165,8 @@ with_linalg_flavor="mkl"
 with_linalg_libs="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
 ```
 
-If possible, try to avoid hard-coded values e.g. use `${MKLROOT}` instead of the full path to the MKL library.
-The user is supposed to load the modules defined in the `pre_configure` section before running `configure`
+If possible, try to avoid hard-coded values e.g. use ``${MKLROOT}`` instead of the full path to the MKL library.
+The user is supposed to load the modules defined in the ``pre_configure`` section before running ``configure``
 and the modules with automatically set these environment variables.
 The big advantage is that one link against a different MKL version by just changing the MKL module
 declared in the json dictionary.

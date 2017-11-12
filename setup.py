@@ -18,12 +18,14 @@ keywords = ["ABINIT", "ab initio", "first principles", "configuration files"]
 classifiers=[
     "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3.4",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
     "Intended Audience :: Science/Research",
-    #"License :: OSI Approved :: MIT License",
-    #"Operating System :: OS Independent",
-    #"Topic :: Scientific/Engineering :: Physics",
-    #"Topic :: Scientific/Engineering :: Chemistry",
-    #"Topic :: Software Development :: Libraries :: Python Modules"
+    "License :: OSI Approved :: GPL License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Software Development :: Libraries :: Python Modules"
 ],
 
 setup(name='abiconfig',
@@ -33,7 +35,7 @@ setup(name='abiconfig',
       author="Matteo Giantomassi",
       author_email='gmatteo@gmail.com',
       url='https://github.com/gmatteo/abiconfig',
-      license='GNU',
+      license='GPL',
       platforms=platforms,
       classifiers=classifiers,
       keywords=keywords,

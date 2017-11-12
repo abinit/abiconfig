@@ -1,8 +1,6 @@
 
 [![Build Status](https://travis-ci.org/abinit/abiconfig.svg?branch=master)](https://travis-ci.org/abinit/abiconfig)
 
-
-
 ## About
 
 This repo is a holding area for configuration files used to configure/compile Abinit on clusters.
@@ -31,14 +29,13 @@ and configurations of software, consider the following projects:
 Both projects are designed for large supercomputing centers and 
 they already provide configuration files to build Abinit.
 
-Precompiled versions of Abinit are also available on the conda channel:
+Pre-compiled versions of Abinit for Linux and MacOSx are also available on the Abinit conda channel:
 
-    $ conda install abinit -c gmatteo
+    $ conda install abinit --channel abinit
 
-Note that, for the time being, these versions do not support MPI
-and the binaries are statically linked against the internal version of Blas/Lapack/FFT.
 These builds are useful especially if you want to try Abinit on your machine but they are not
 supposed to be used for high-performance calculations.
+For further information, please consult the [abinit channel](https://anaconda.org/abinit).
 
 ## Getting abiconfig
 
@@ -93,7 +90,7 @@ abiconfig database (e.g. ``manneback-gcc-openmpi.ac``), use:
 
     $ abiconf.py workon manneback-gcc-openmpi.ac
 
-to create the build directory, then follow the istruction reported on the terminal to configure and
+to create the build directory, then follow the instructions reported on the terminal to configure and
 compile the code.
 
 It's also possible to generate a submission script template with the syntax:

@@ -340,7 +340,7 @@ def abiconf_workon(options):
 
     retcode = 0
     if not options.make:
-        cprint("Use `source %s` to configure/make" % os.path.relpath(script), "yellow")
+        cprint("Use:\n\t`source %s`\nto configure/make" % os.path.relpath(script), "yellow")
     else:
 	# The code gets stuck here if -jN. Should find better approach
         os.chdir(workdir)

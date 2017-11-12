@@ -8,7 +8,8 @@
 #"qtype": "slurm",
 #"pre_configure": [
 #   "module purge",
-#   "module load impi/2013"
+#   "module load impi/5.1.3.181-iccifort-2016.3.210-GCC-5.4.0-2.26",
+#   "module load imkl/11.3.3.210-iimpi-2016b"
 #]
 #}
 #---

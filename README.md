@@ -93,6 +93,8 @@ abiconfig database (e.g. ``manneback-gcc-openmpi.ac``), use:
 to create the build directory, then follow the instructions reported on the terminal to configure and
 compile the code.
 
+Note that ``workon`` must be executed within an Abinit directory tree containing the ``configure`` script.
+
 It's also possible to generate a submission script template with the syntax:
 
     $ abiconf.py script manneback-gcc-openmpi.ac

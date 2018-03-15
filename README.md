@@ -6,6 +6,7 @@
 This repo is a holding area for configuration files used to configure/compile Abinit on clusters.
 Each configuration files contains a header with metadata in json format followed by
 the configure options supported by the Abinit build system.
+See files in the [abiconfig/clusters](https://github.com/abinit/abiconfig/tree/master/abiconfig/clusters) directory.
 
 The metadata section contains information such as the list of modules that must be loaded
 in order to configure/execute Abinit on the cluster, a brief description of the options activated

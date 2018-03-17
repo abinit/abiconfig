@@ -1,0 +1,49 @@
+#---
+#{
+#"hostname": "conda_build",
+#"author": "M. Giantomassi",
+#"date": "2018-03-17",
+#"description": "Configuration file to compile and link with conda environment.",
+#"keywords": ["conda"],
+#"qtype": "shell",
+#"pre_configure": [
+#  "source activate my_conda_env"
+#]
+#}
+#---
+
+
+#install architecture-independent files in PREFIX
+#prefix="${CONDA_PREFIX}/"
+
+
+FCFLAGS="-g -O2 --free-line-length-none"
+
+enable_mpi="yes"
+enable_mpi_io="yes"
+with_mpi_prefix=${CONDA_PREFIX}
+
+with_trio_flavor="netcdf"
+#with_trio_flavor="netcdf-fallback"
+# Include flags for the NetCDF library (default is unset)
+with_netcdf_incs="-I${CONDA_PREFIX}/include"
+with_netcdf_libs="-L${CONDA_PREFIX}/lib -lnetcdff -lnetcdf -lhdf5_hl -lhdf5"
+#with_netcdf_libs="-L${CONDA_PREFIX}/lib -lnetcdf -lmfhdf -ldf -lhdf5_hl -lhdf5 -lc++ -lz -ldl -lm -lcurl"
+
+#with_linalg_flavor="mkl"
+# Link flags for the external linear algebra libraries (default is unset)
+with_linalg_libs="-L${CONDA_PREFIX} -lopenbblas"
+#with_linalg_libs="-L${CONDA_PREFIX}/lib -Wl,-rpath,${CONDA_PREFIX}/lib -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl" # -m64 -I${CONDA_PREFIX}/include"
+
+#with_dft_flavor="atompaw+libxc+wannier90"
+with_dft_flavor="libxc"
+
+# Enable double precision for GW calculations
+enable_gw_dpc="yes"
+
+
+# Enable OpenMP
+enable_openmp="no"
+
+# Enable ZDOTC and ZDOTU bugfix (required for MacOsX)
+enable_zdot_bugfix="yes"

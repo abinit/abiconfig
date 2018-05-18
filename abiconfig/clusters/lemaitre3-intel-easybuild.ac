@@ -21,12 +21,12 @@ CC="mpiicc"
 FC="mpiifort"
 
 # MPI/OpenMP
-with_mpi_prefix="${EBROOTOPENMPI}"
+#with_mpi_prefix="${EBROOTIMPI}"
 enable_mpi="yes"
 enable_mpi_io="yes"
 enable_openmp="no"
 
-#FCFLAGS="-g -O2 --free-line-length-none"
+FCFLAGS="-g -O2"
 
 # BLAS/LAPACK with MKL
 with_linalg_flavor="mkl"
@@ -42,7 +42,7 @@ with_dft_flavor="libxc"
 # Activate netcdf library
 # Use external hdf5/netcdf4. Flags are taken from nc-config.
 with_trio_flavor="netcdf"
-with_netcdf_incs="-I{EBROOTNETCDF}/include"
+with_netcdf_incs="-I${EBROOTNETCDF}/include"
 with_netcdf_libs="`nc-config --flibs`"
 
 # Use double precision in GW code

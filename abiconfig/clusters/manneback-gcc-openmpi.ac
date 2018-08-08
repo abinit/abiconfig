@@ -13,7 +13,8 @@
 #"keywords": ["linux", "gcc", "openmpi", "easybuild", "gompi"],
 #"pre_configure": [
 #  "module purge",
-#  "module load gompi/2016a FFTW/3.3.4-gompi-2016a"
+#  "module load gompi/2017b FFTW/3.3.6-gompi-2017b"
+#  
 # ]
 #}
 #---

@@ -1,0 +1,63 @@
+#---
+#{
+#"hostname": "dragon2",
+#"author": "M. Giantomassi",
+#"date": "2020-08-30",
+#"description": [
+#   "Configuration file for dragon2 based on easy-build and the intel toolchain"
+#],
+#"qtype": "slurm",
+#"keywords": ["linux", "intel", "easybuild"],
+#"pre_configure": [
+#   "module load releases/2018b",
+#   "module load intel/2018b",
+#   "module load iimpi/2018b",
+#   "module load libxc/4.2.3-intel-2018b",
+#   "module load netCDF/4.6.1-intel-2018b",
+#   "module load netCDF-Fortran/4.4.4-intel-2018b"
+# ]
+#}
+#---
+
+#install architecture-independent files in PREFIX
+#prefix="~/local/"
+#
+FC="mpiifort"
+CC="mpiicc"
+CXX="mpiicpc"
+
+# MPI/OpenMP
+#with_mpi="${EBROOTIIMPI}"
+#with_mpi="${I_MPI_ROOT}"
+with_mpi="yes"
+enable_openmp="no"
+
+CFLAGS="-O2 -g"
+CXXFLAGS="-O2 -g"
+FCFLAGS="-O2 -g"
+
+# BLAS/LAPACK with MKL
+with_linalg_flavor="mkl"
+#LINALG_CPPFLAGS="-I${MKLROOT}/include"
+#LINALG_FCFLAGS="-I${MKLROOT}/include"
+LINAGL_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
+#LINALG_LIBS="-L${MKLROOT}/lib/intel64 -Wl,--start-group  -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group"
+
+# FFT from MKL
+with_fft_flavor="dfti"
+FFT_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
+
+# Activate libxc fallback.
+with_libxc="${EBROOTLIBXC}"
+
+# Use external hdf5/netcdf4. Flags are taken from nc-config and nf-config
+with_netcdf="`nc-config --prefix`"
+with_netcdf_fortran="`nf-config --prefix`"
+with_hdf5="${EBROOTHDF5}"
+
+# Use double precision in GW code (slower and more memory)
+enable_gw_dpc="no"
+
+# Disable optimization in directories containing big F90 files (efficiency is not critical here)
+fcflags_opt_20_datashare="-O0"
+fcflags_opt_43_ptgroups="-O0"

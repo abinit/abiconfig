@@ -46,17 +46,10 @@ LINAGL_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequenti
 with_fft_flavor="dfti"
 #FFT_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
 
-# Activate libxc fallback.
-with_libxc="yes"
+# libxc
+with_libxc="${EBROOTLIBXC}"
 
-# Use external hdf5/netcdf4. Flags are taken from nc-config and nf-config
+# hdf5/netcdf4. Use nc-config and nf-config to get installation directory
 with_netcdf="`nc-config --prefix`"
 with_netcdf_fortran="`nf-config --prefix`"
-with_hdf5="yes"
-
-# Use double precision in GW code (slower and more memory)
-enable_gw_dpc="yes"
-
-# Disable optimization in directories containing big F90 files (efficiency is not critical here)
-fcflags_opt_20_datashare="-O0"
-fcflags_opt_43_ptgroups="-O0"
+with_hdf5="${EBROOTHDF5}"

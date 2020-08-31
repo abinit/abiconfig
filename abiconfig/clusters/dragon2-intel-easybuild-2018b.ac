@@ -1,10 +1,10 @@
 #---
 #{
-#"hostname": "lemaitre3",
+#"hostname": "dragon2",
 #"author": "M. Giantomassi",
-#"date": "2020-05-10",
+#"date": "2020-08-30",
 #"description": [
-#   "Configuration file for lemaitre3 based on easy-build and the intel toolchain"
+#   "Configuration file for dragon2 based on easy-build and the intel toolchain"
 #],
 #"qtype": "slurm",
 #"keywords": ["linux", "intel", "easybuild"],
@@ -28,6 +28,7 @@ CXX="mpiicpc"
 
 # MPI/OpenMP
 #with_mpi="${EBROOTIIMPI}"
+#with_mpi="${I_MPI_ROOT}"
 with_mpi="yes"
 enable_openmp="no"
 
@@ -46,17 +47,10 @@ LINAGL_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequenti
 with_fft_flavor="dfti"
 FFT_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
 
-# Activate libxc fallback.
+# libxc
 with_libxc="${EBROOTLIBXC}"
 
-# Use external hdf5/netcdf4. Flags are taken from nc-config and nf-config
+# hdf5/netcdf4. Use nc-config and nf-config to get installation directory
 with_netcdf="`nc-config --prefix`"
 with_netcdf_fortran="`nf-config --prefix`"
 with_hdf5="${EBROOTHDF5}"
-
-# Use double precision in GW code (slower and more memory)
-enable_gw_dpc="yes"
-
-# Disable optimization in directories containing big F90 files (efficiency is not critical here)
-fcflags_opt_20_datashare="-O0"
-fcflags_opt_43_ptgroups="-O0"

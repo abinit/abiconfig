@@ -4,24 +4,26 @@
 #"author": "J-M Beuken",
 #"date": "2020-06-30",
 #"description": [
-#   "Configuration file for alps based on external libs and gcc"
+#   "Configuration file for alps based on external libraries and gcc."
 #],
 #"qtype": "slurm",
 #"keywords": ["linux", "gcc", "mpich"],
 #"pre_configure": [
-#   "module load alps_gnu_10.2_mpich",
+#   "module load alps_gnu_10.2_mpich"
 # ]
 #}
 #---
 
 #install architecture-independent files in PREFIX
 #prefix="~/local/"
- 
+
 with_mpi="${MPI_HOME}"
 
+# BLAS/LAPACK from openblas
 with_linalg_flavor="openblas"
 LINALG_LIBS="-L/usr/local/OpenBLAS-0.3.10_gnu10.2/lib -lopenblas -lpthread"
 
+# FFT from FFTW3
 with_fft_flavor="fftw3"
 FFTW3_CPPFLAGS="-I/usr/include"
 FFTW3_FCFLAGS="-I/usr/include"
@@ -37,6 +39,3 @@ with_netcdf_fortran="${FALLBACKS_HOME}_9.2/${FB}/netcdf4_fortran/4.5.2"
 with_libpsml="${FALLBACKS_HOME}_9.2/${FB}/libpsml/1.1.7"
 with_wannier90="${FALLBACKS_HOME}_9.2/${FB}/wannier90/2.0.1.1"
 with_xmlf90="${FALLBACKS_HOME}_9.2/${FB}/xmlf90/1.5.3.1"
-
-enable_gw_dpc="no"
-#enable_memory_profiling="yes"

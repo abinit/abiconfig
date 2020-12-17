@@ -36,9 +36,9 @@ CXX="mpiicpc"
 with_mpi="yes"
 enable_openmp="no"
 
-CFLAGS="-O2 -g"
-CXXFLAGS="-O2 -g"
-FCFLAGS="-O2 -g"
+CFLAGS="-O2 -g -march=core-avx"
+CXXFLAGS="-O2 -g -march=core-avx"
+FCFLAGS="-O2 -g -march=core-avx"
 
 # BLAS/LAPACK with MKL
 with_linalg_flavor="mkl"

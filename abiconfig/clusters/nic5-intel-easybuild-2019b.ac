@@ -1,0 +1,58 @@
+#---
+#{
+#"hostname": "nic5",
+#"author": "J-M Beuken",
+#"date": "2020-12-17",
+#"description": [
+#   "Configuration file for nic5 based on easy-build and the intel toolchain 2020b"
+#],
+#"qtype": "slurm",
+#"keywords": ["linux", "intel", "easybuild"],
+#"pre_configure": [
+#   "module load releases/2020b",
+#   "module load Python/3.8.6-GCCcore-10.2.0",
+#   "module load intel/2020b",
+#   "module load iimpi/2020b",
+#   "module load libxc/4.3.4-iccifort-2020.4.304",
+#   "module load HDF5/1.10.7-iimpi-2020b"
+#   "module load netCDF/4.7.4-iimpi-2020b",
+#   "module load netCDF-Fortran/4.5.3-iimpi-2020b"
+# ]
+#}
+#---
+
+# need these settings
+# export LANG=C
+# export LC_ALL=C
+
+#install architecture-independent files in PREFIX
+#prefix="~/local/"
+#
+FC="mpiifort"
+CC="mpiicc"
+CXX="mpiicpc"
+
+# MPI/OpenMP
+with_mpi="yes"
+enable_openmp="no"
+
+CFLAGS="-O2 -g"
+CXXFLAGS="-O2 -g"
+FCFLAGS="-O2 -g"
+
+# BLAS/LAPACK with MKL
+with_linalg_flavor="mkl"
+LINALG_FCFLAGS="-I${MKLROOT}/include"
+LINALG_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lmkl_blacs_intelmpi_lp64 -lpthread -lm -ldl”
+
+# FFT from MKL
+with_fft_flavor="dfti"
+#FFT_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
+
+# libxc
+with_libxc="${EBROOTLIBXC}"
+
+# hdf5/netcdf4. Use nc-config and nf-config to get installation directory
+with_netcdf="`nc-config --prefix`"
+with_netcdf_fortran="`nf-config --prefix`"
+with_hdf5="${EBROOTHDF5}"

@@ -1,0 +1,59 @@
+#---
+#{
+#"hostname": "nic5",
+#"author": "M. Giantomassi",
+#"date": "2021-04-30",
+#"description": [
+#   "Configuration file for nic5 with Openmp threads based on easy-build and the intel toolchain 2020b"
+#],
+#"qtype": "slurm",
+#"keywords": ["linux", "intel", "easybuild"],
+#"pre_configure": [
+#  "module --force purge",
+#  "module load releases/2020b",
+#  "module load impi/2019.9.304-iccifort-2020.4.304",
+#  "module load imkl/2020.4.304-iimpi-2020b",
+#  "module load libxc/4.3.4-iccifort-2020.4.304",
+#  "module load netCDF-Fortran/4.5.3-iimpi-2020b"
+# ]
+#}
+#---
+
+# need these settings
+# export LANG=C
+# export LC_ALL=C
+
+#install architecture-independent files in PREFIX
+#prefix="~/local/"
+
+FC="mpiifort"
+CC="mpiicc"
+CXX="mpiicpc"
+
+# MPI/OpenMP
+#with_mpi="${I_MPI_ROOT}"
+with_mpi="yes"
+# Tell Abinit buildsys that we want to activate Openmp (necessary condition but not sufficient)
+enable_openmp="yes"        
+enable_gw_dpc="no"
+
+CFLAGS="-O2 -g"
+CXXFLAGS="-O2 -g"
+# Activate OpenMP in Abinit Fortran code !IMPORTANT, enable_openmp="yes" is not enough.
+FCFLAGS="-O2 -g -fopenmp"  
+
+# BLAS/LAPACK with MKL (Openmp Version).
+with_linalg_flavor="mkl"
+LINALG_FCFLAGS="-I${MKLROOT}/include"
+LINALG_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -lmkl_blacs_intelmpi_lp64 -liomp5 -lpthread -lm -ldl"
+
+# FFT from MKL
+with_fft_flavor="dfti"
+
+# libxc
+with_libxc="${EBROOTLIBXC}"
+
+# hdf5/netcdf4. Use nc-config and nf-config to get installation directory
+with_netcdf="`nc-config --prefix`"
+with_netcdf_fortran="`nf-config --prefix`"
+with_hdf5="${EBROOTHDF5}"

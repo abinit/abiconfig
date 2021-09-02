@@ -1,0 +1,55 @@
+#---
+#{
+#"hostname": "archer2",
+#"author": "MJ Verstraete",
+#"date": "2021-09-02",
+#"description": [
+#   "Configuration file for archer2 cray compiler based on external libraries and gcc."
+#],
+#"qtype": "slurm",
+#"keywords": ["linux", "cray", "mpich"],
+#"pre_configure": [
+#   "module load cray-hdf5-parallel",
+#   "module load cray-netcdf-hdf5parallel",
+#   "module load cray-fftw",
+#   "module load cray-python"
+# ]
+#}
+#---
+
+CC=cc
+FC=ftn
+CXX=CC
+F90=ftn
+
+#-xCORE-AVX512
+CFLAGS="        -O2 " #-mtune=skylake -xCORE-AVX512 -m64 -fPIC -mkl "
+CXXFLAGS="          "
+FCFLAGS="       -O2 -g  -h omp "
+FCFLAGS_OPTIM=" -O2 "
+FCFLAGS_EXTRA=" "
+FCFLAGS_MODDIR="-J../mods -I../mods"
+
+with_mpi='yes'
+enable_mpi_inplace='yes'
+enable_mpi_io='yes'
+enable_openmp='yes'
+
+with_linalg_flavor="netlib"
+LINALGROOT=${CRAY_LIBSCI_DIR}
+LINALG_LDFLAGS="-L${LINALGROOT}/lib/ -lsci_cray_mpi"
+LINALG_LIBS="-L${LINALGROOT}/lib/ -lsci_cray_mpi"
+LINALG_FCFLAGS="-I${LINALGROOT}/include"
+
+with_fft_flavor="fftw3"
+with_fftw3=${FFTW_DIR}
+
+with_hdf5='yes'
+
+with_netcdf=${NETCDF_DIR}
+with_netcdf_fortran=${NETCDF_DIR}
+
+#with_libxc=/home/pr1u1656/pr1u1656/pr1n0143/CODES/libxc/
+with_libxc=/lus/cls01095/work/pr1u1656/pr1u1656/pr1n0143/CODES/libxc/
+#${LIBXC_DIR}
+

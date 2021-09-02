@@ -1,0 +1,66 @@
+#---
+#{
+#"hostname": "marenostrum",
+#"author": "MJ Verstraete",
+#"date": "2021-09-02",
+#"description": [
+#   "Configuration file for marenostrum based on external libraries and intel fortran."
+#],
+#"qtype": "slurm",
+#"keywords": ["linux", "intel", "impi"],
+#"pre_configure": [
+#   "module load prace",
+#   "module load gcc",
+#   "module load szip",
+#   "module load autotools",
+#   "module load python",
+#   "module load intel/2017.4",
+#   "module load impi/2017.4",
+#   "module load mkl/2017.4",
+#   "module load hdf5/1.10.5",
+#   "module load netcdf/4.4.1.1_hdf5-1.10.5",
+#   "module load wannier90/3.0.0",
+#   "module load libxc/4.2.3"
+# ]
+#}
+#---
+
+CC=mpiicc
+FC=mpiifort
+CXX=mpiicc
+F90=mpiifort
+
+#-xCORE-AVX512
+CFLAGS="       -g -O2 -mtune=skylake -xCORE-AVX512 -m64 -fPIC -mkl "
+CXXFLAGS="     -g     -mtune=skylake -xCORE-AVX512 -m64 -fPIC"
+FCFLAGS="      -g -O2 -mtune=skylake -xCORE-AVX512 -m64 -fPIC -mkl "
+FCFLAGS_OPTIM="-g -O2 -mtune=skylake -xCORE-AVX512 -m64 -fPIC -mkl "
+FCFLAGS_EXTRA="-I/apps/INTEL/2017.4/mkl/include -I/apps/INTEL/2017.4/mkl/include/fftw/"
+CPPFLAGS="-I/apps/INTEL/2017.4/mkl/include -I/apps/INTEL/2017.4/mkl/include/fftw/"
+
+# from Cristian Morales BSC
+#--with-linalg-libs="-lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lmkl_blas95_lp64 -lmkl_lapack95_lp64"
+
+with_wannier90="/gpfs/projects/pr1eme00/wannier90/wannier90-2.1.0" #/apps/WANNIER90/3.0.0/INTEL/IMPI"
+
+with_linalg_flavor="mkl"
+LINALG_LDFLAGS="-L/apps/INTEL/2017.4/mkl/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl "
+#LINALG_LDFLAGS="-Wl,-Bstatic -Wl,--start-group -L/apps/INTEL/2017.4/mkl/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl  -Wl,--end-group -Wl,-Bdynamic"
+LINALG_FCFLAGS="-I/apps/INTEL/2017.4/mkl/include"
+#              /gpfs/apps/MN4/INTEL/2017.4/compilers_and_libraries_2017.4.196/linux/mkl/"
+
+with_fft="dfti"
+FFT_LDFLAGS="-L/apps/INTEL/2017.4/mkl/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl "
+FFT_FCFLAGS="-I/apps/INTEL/2017.4/mkl/include -I/apps/INTEL/2017.4/mkl/include/fftw/"
+
+with_mpi='/apps/INTEL/2017.4/impi/2017.3.196/intel64'
+enable_mpi_inplace='yes'
+enable_mpi_io='yes'
+enable_openmp='yes'
+
+with_hdf5='/apps/HDF5/1.10.5/INTEL/IMPI/'
+with_netcdf='/apps/NETCDF/4.4.1.1_hdf5-1.10.5/INTEL/IMPI/'
+with_netcdf_fortran='/apps/NETCDF/4.4.1.1_hdf5-1.10.5/INTEL/IMPI/'
+
+with_libxc='/apps/LIBXC/4.2.3/INTEL/'
+

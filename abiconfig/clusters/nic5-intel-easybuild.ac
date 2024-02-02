@@ -1,10 +1,11 @@
+# This file might need update of the list of modules (e.g. the year), in the "pre-configure" section below, but everything else should work as is.
 #---
 #{
 #"hostname": "nic5",
 #"author": "J-M Beuken",
 #"date": "2020-12-17",
 #"description": [
-#   "Configuration file for nic5 based on easy-build and the intel toolchain 2020b"
+#   "Configuration file for nic5 based on easy-build and the intel toolchain (here 2020b modules)"
 #],
 #"qtype": "slurm",
 #"keywords": ["linux", "intel", "easybuild"],

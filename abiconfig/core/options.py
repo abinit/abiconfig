@@ -29,7 +29,7 @@ def get_actemplate_string():
         return f.read()
 
 
-class Option(object):
+class Option:
     """
     The recognized attributes are the following:
 
@@ -157,6 +157,7 @@ class AbinitConfigureOptions(OrderedDict):
     Stores information on the options supported by the Abinit configure script.
     Dictionary: option_name --> Option instance
     """
+
     @classmethod
     def from_myoptions_conf(cls):
         """Read configure options from my internal copy of options.conf"""
@@ -181,6 +182,7 @@ class AbinitConfigureOptions(OrderedDict):
 
 def is_string_list(obj):
     return isinstance(obj, (list, tuple)) and all(is_string(s) for s in obj)
+
 
 def is_description(obj):
     """True if valid description entry."""
@@ -255,7 +257,7 @@ class ConfigMeta(dict):
         return [l + "\n" for l in lines]
 
     def __init__(self, *args, **kwargs):
-        super(ConfigMeta, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # description could be either a string or a list of strings.
         # If list, a newline is added at the end of each item and a single string is built.
@@ -321,9 +323,11 @@ class Config(OrderedDict):
 
             try:
                 new._parse_meta("".join(meta))
-            except:
+            except Exception as exc:
                 # FIXME: This is to support config file with metadata (e.g. buildbot ac files)
                 #raise
+                print(f"Exception in {path}")
+                print(exc)
                 new.meta = {}
 
             # FIXME: Add support for

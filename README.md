@@ -5,7 +5,7 @@
 
 ## About
 
-This repo is a holding area for configuration files used to configure/compile Abinit on clusters.
+This repo is a holding area for configuration files used to configure/compile Abinit on HPC clusters.
 Each configuration file contains a header with metadata in json format followed by
 the configure options supported by the Abinit build system.
 See files in the [abiconfig/clusters](https://github.com/abinit/abiconfig/tree/master/abiconfig/clusters) directory.
@@ -42,13 +42,13 @@ For further information, please consult the [abinit channel](https://anaconda.or
 
 ## Getting abiconfig
 
-<!---
 ### From pip
 
 The easiest way to install abiconf is to use `pip`, as follows:
 
-    pip install abiconfig
--->
+    pip install git+https://github.com/abinit/abiconfig.git@develop --user
+
+The `--user` option makes pip install packages in your home directory instead which doesn't require any special privileges.
 
 ### From github
 
@@ -73,9 +73,9 @@ Please fork the project on github, if you plan to contribute to `abiconfig`.
 
 Use:
 
-    $ abiconf.py hostname zenobe
+    $ abiconf.py hostname nic5
 
-to list the configuration files available for the ``zenobe`` machine.
+to list the configuration files available for the ``nic5`` machine.
 If the machine name is not provided, the full list of configuration files is printed.
 
 Use:

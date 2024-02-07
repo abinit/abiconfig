@@ -1,7 +1,7 @@
 #---
 #{
 #"hostname": "archer2",
-#"author": "MJ Verstraete",
+#"author": "M.J. Verstraete",
 #"date": "2021-09-02",
 #"description": [
 #   "Configuration file for archer2 cray compiler based on external libraries and gcc."

@@ -110,7 +110,7 @@ def abiconf_hostname(options):
     for conf in configs:
         # TODO: Should handle foo.bar.be case
         #if not (hostname in conf.meta["keywords"] or hostname in conf.basename):
-        #print(conf)
+        print(conf)
         if not hostname in conf.meta["hostname"]:
             continue
         nfound += 1
@@ -127,6 +127,7 @@ def abiconf_hostname(options):
         if options.verbose == 0: print("\nUse -v for further information")
 
     return 0
+
 
 def abiconf_list(options):
     """List all configuration files."""

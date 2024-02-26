@@ -44,7 +44,7 @@ FCFLAGS="-O2 -g -march=core-avx2"
 # BLAS/LAPACK with MKL
 with_linalg_flavor="mkl"
 LINALG_FCFLAGS="-I${MKLROOT}/include"
-LINALG_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lmkl_blacs_intelmpi_lp64 -lpthread -lm -ldl”
+LINALG_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lmkl_blacs_intelmpi_lp64 -lpthread -lm -ldl"
 
 # FFT from MKL
 with_fft_flavor="dfti"

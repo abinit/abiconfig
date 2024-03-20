@@ -1,6 +1,31 @@
+# This file might need update of the list of modules (e.g. the year), in the "pre-configure" section below, but everything else should work as is.
+#---
+#{
+#"hostname": "lemaitre4",
+#"author": "Rashmi_Ranjan_Routaray",
+#"date": "2024-03-20",
+#"description": [
+#   "Configuration file for lemaitre4 based on easy-build and the intel toolchain (here 2021b modules)"
+#],
+#"qtype": "slurm",
+#"keywords": ["linux", "intel", "easybuild"],
+#"pre_configure": [
+#  "module load Python
+#   module load releases/2021b
+#   module load intel/2021b
+#   module load libxc/5.1.6-inte
+#   module load iimpi/2021b
+#   module load imkl-FFTW/2021.4.0-iimpi-2021b
+#   module load HDF5/1.12.1-iimpi-2021b
+#   module load netCDF/4.8.1-iimpi-2021b
+#   module load netCDF-Fortran/4.5.3-iimpi-2021b"
+# ]
+#}
+#---
 
-
-
+#install architecture-independent files in PREFIX
+#prefix="~/local/"
+#
 FC="mpiifort"
 CC="mpiicc"
 CXX="mpiicpc"

@@ -23,6 +23,10 @@
 #}
 #---
 
+# need these settings
+#export LANG=en_US.utf8
+#export LC_ALL=en_US.utf8
+
 #install architecture-independent files in PREFIX
 #prefix="~/local/"
 #

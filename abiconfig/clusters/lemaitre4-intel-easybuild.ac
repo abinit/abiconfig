@@ -2,23 +2,25 @@
 #---
 #{
 #"hostname": "lemaitre4",
-#"author": "Rashmi_Ranjan_Routaray",
-#"date": "2024-03-20",
+#"author": "Tom van Waas",
+#"date": "2024-04-18",
 #"description": [
-#   "Configuration file for lemaitre4 based on easy-build and the intel toolchain (here 2021b modules)"
+#   "Configuration file for lemaitre4 based on easy-build and the intel toolchain (here 2023a modules). 
+#    It will probably be necessary to prepend your execution with --force-mpirun, for example:
+#    ../tests/runtests.py --force-mpirun -j16 v1."
 #],
 #"qtype": "slurm",
 #"keywords": ["linux", "intel", "easybuild"],
 #"pre_configure": [
-#  "module load Python
-#   module load releases/2021b
-#   module load intel/2021b
-#   module load libxc/5.1.6-inte
-#   module load iimpi/2021b
-#   module load imkl-FFTW/2021.4.0-iimpi-2021b
-#   module load HDF5/1.12.1-iimpi-2021b
-#   module load netCDF/4.8.1-iimpi-2021b
-#   module load netCDF-Fortran/4.5.3-iimpi-2021b"
+#  "module load releases/2023a
+#   module load intel/2023a
+#   module load iimpi/2023a
+#   module load imkl/2023.1.0
+#   module load libxc/6.2.2-intel-compilers-2023.1.0
+#   module load HDF5/1.14.0-iimpi-2023a
+#   module load netCDF/4.9.2-iimpi-2023a
+#   module load netCDF-Fortran/4.6.1-iimpi-2023a
+#   module load Python/3.11.3-GCCcore-12.3.0
 # ]
 #}
 #---
@@ -35,9 +37,8 @@ CC="mpiicc"
 CXX="mpiicpc"
 
 # MPI/OpenMP
-#with_mpi="${EBROOTIIMPI}"
+with_mpi="${I_MPI_ROOT}"
 with_mpi="yes"
-enable_openmp="no"
 
 CFLAGS="-O2 -g"
 CXXFLAGS="-O2 -g"
@@ -45,14 +46,15 @@ FCFLAGS="-O2 -g"
 
 # BLAS/LAPACK with MKL
 with_linalg_flavor="mkl"
-#LINALG_CPPFLAGS="-I${MKLROOT}/include"
-#LINALG_FCFLAGS="-I${MKLROOT}/include"
-LINAGL_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
-#LINALG_LIBS="-L${MKLROOT}/lib/intel64 -Wl,--start-group  -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group"
+LINALG_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl"
+LINALG_CPPFLAGS="-I${MKLROOT}/include"
+LINALG_FCFLAGS="-I${MKLROOT}/include"
 
 # FFT from MKL
 with_fft_flavor="dfti"
-#FFT_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
+FFT_CPPFLAGS="-I${MKLROOT}/include"
+FFT_FCFLAGS="-I${MKLROOT}/include"
+FFT_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl"
 
 # libxc
 with_libxc="${EBROOTLIBXC}"

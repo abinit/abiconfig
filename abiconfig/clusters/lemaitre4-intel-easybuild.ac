@@ -12,15 +12,15 @@
 #"qtype": "slurm",
 #"keywords": ["linux", "intel", "easybuild"],
 #"pre_configure": [
-#  "module load releases/2023a
-#   module load intel/2023a
-#   module load iimpi/2023a
-#   module load imkl/2023.1.0
-#   module load libxc/6.2.2-intel-compilers-2023.1.0
-#   module load HDF5/1.14.0-iimpi-2023a
-#   module load netCDF/4.9.2-iimpi-2023a
-#   module load netCDF-Fortran/4.6.1-iimpi-2023a
-#   module load Python/3.11.3-GCCcore-12.3.0
+#  "module load releases/2023a",
+#  "module load intel/2023a",
+#  "module load iimpi/2023a",
+#  "module load imkl/2023.1.0",
+#  "module load libxc/6.2.2-intel-compilers-2023.1.0",
+#  "module load HDF5/1.14.0-iimpi-2023a",
+#  "module load netCDF/4.9.2-iimpi-2023a",
+#  "module load netCDF-Fortran/4.6.1-iimpi-2023a",
+#  "module load Python/3.11.3-GCCcore-12.3.0",
 # ]
 #}
 #---
@@ -39,6 +39,7 @@ CXX="mpiicpc"
 # MPI/OpenMP
 with_mpi="${I_MPI_ROOT}"
 with_mpi="yes"
+enable_openmp="no"
 
 CFLAGS="-O2 -g"
 CXXFLAGS="-O2 -g"

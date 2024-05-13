@@ -174,6 +174,9 @@ class AbinitConfigureOptions(OrderedDict):
         new = cls()
         for arg in sorted(parser.sections()):
             new[arg] = Option(arg, parser)
+
+        #if "hostname" not in new:
+        #    raise ValueError(f"hostname undefined in {path=}")
         return new
 
     def __str__(self):
@@ -282,6 +285,11 @@ class ConfigMeta(dict):
             else:
                 if not validator(self[key]):
                     eapp("Wrong value for key: %s. Got type: %s" % (key, type(self[key])))
+
+        #if errors:
+        #    print("ERRORS")
+        #    print(errors)
+        #    raise ValueError()
 
         return errors
 

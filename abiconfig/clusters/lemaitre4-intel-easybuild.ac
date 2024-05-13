@@ -5,9 +5,9 @@
 #"author": "Tom van Waas",
 #"date": "2024-04-18",
 #"description": [
-#   "Configuration file for lemaitre4 based on easy-build and the intel toolchain (here 2023a modules). 
-#    It will probably be necessary to prepend your execution with --force-mpirun, for example:
-#    ../tests/runtests.py --force-mpirun -j16 v1."
+#   "Configuration file for lemaitre4 based on easy-build and the intel toolchain (here 2023a modules).",
+#   "It will probably be necessary to prepend your execution with --force-mpirun, for example:",
+#   "../tests/runtests.py --force-mpirun -j16 v1."
 #],
 #"qtype": "slurm",
 #"keywords": ["linux", "intel", "easybuild"],
@@ -20,7 +20,7 @@
 #  "module load HDF5/1.14.0-iimpi-2023a",
 #  "module load netCDF/4.9.2-iimpi-2023a",
 #  "module load netCDF-Fortran/4.6.1-iimpi-2023a",
-#  "module load Python/3.11.3-GCCcore-12.3.0",
+#  "module load Python/3.11.3-GCCcore-12.3.0"
 # ]
 #}
 #---

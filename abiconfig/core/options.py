@@ -335,6 +335,7 @@ class Config(OrderedDict):
                 # FIXME: This is to support config file with metadata (e.g. buildbot ac files)
                 #raise
                 print(f"Exception in {path}")
+                raise exc
                 print(exc)
                 new.meta = {}
 

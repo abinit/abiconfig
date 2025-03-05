@@ -2,8 +2,8 @@
 #---
 #{
 #"hostname": "manneback",
-#"author": "M. Giantomassi",
-#"date": "2020-09-30",
+#"author": "Thomas. P. van Waas",
+#"date": "2025-03-05",
 #"description": [
 #   "Configuration file for manneback based on easy-build and the intel toolchain (here 2019b)"
 #],
@@ -20,6 +20,10 @@
 #}
 #---
 
+# need these settings
+#export LANG=en_US.utf8
+#export LC_ALL=en_US.utf8
+
 #install architecture-independent files in PREFIX
 #prefix="~/local/"
 #
@@ -28,7 +32,7 @@ CC="mpiicc"
 CXX="mpiicpc"
 
 # MPI/OpenMP
-#with_mpi="${EBROOTIIMPI}"
+with_mpi="${I_MPI_ROOT}"
 with_mpi="yes"
 enable_openmp="no"
 
@@ -38,14 +42,15 @@ FCFLAGS="-O2 -g"
 
 # BLAS/LAPACK with MKL
 with_linalg_flavor="mkl"
-#LINALG_CPPFLAGS="-I${MKLROOT}/include"
-#LINALG_FCFLAGS="-I${MKLROOT}/include"
-LINAGL_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
-#LINALG_LIBS="-L${MKLROOT}/lib/intel64 -Wl,--start-group  -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -Wl,--end-group"
+LINALG_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl"
+LINALG_CPPFLAGS="-I${MKLROOT}/include"
+LINALG_FCFLAGS="-I${MKLROOT}/include"
 
 # FFT from MKL
 with_fft_flavor="dfti"
-#FFT_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl"
+FFT_CPPFLAGS="-I${MKLROOT}/include"
+FFT_FCFLAGS="-I${MKLROOT}/include"
+FFT_LIBS="-L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl"
 
 # libxc
 with_libxc="${EBROOTLIBXC}"

@@ -1,0 +1,25 @@
+# 
+# abinit config file for marenostrum5 in BSC
+# 
+# ### modules loaded ###
+# module purge
+# module load bsc
+# module load ucx/1.16.0-gcc
+# module load gcc/13.2.0
+# module load openmpi/4.1.5-gcc
+# module load libxc/6.2.0-gcc-kxc
+# module load hdf5/1.14.1-2-gcc-openmpi
+# module load pnetcdf/1.12.3-gcc-openmpi
+# module load netcdf/c-4.9.2_fortran-4.6.1_cxx4-4.3.1_hdf5-1.14.1-2_pnetcdf-1.12.3-gcc-openmpi
+# module load mkl/2024.2
+# module load python/3.12.1-gcc
+# unset NETCDF_FORTRAN_FCFLAGS
+
+
+
+FC=mpif90
+CC=mpicc
+enable_openmp="yes"
+with_netcdf_fortran=/apps/GPP/NETCDF/c-4.9.2_fortran-4.6.1_cxx4-4.3.1_hdf5-1.14.1-2_pnetcdf-1.12.3/GCC/OPENMPI/
+
+FCFLAGS_EXTRA="-g"

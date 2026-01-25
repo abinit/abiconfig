@@ -1,0 +1,45 @@
+#
+#  configuration file for abinit on the LUMI cluster
+#  Jan 2026 _after_ the LUMI refurbishment and update of all module versions
+#  This config still uses gfortran for simplicity, parallel hdf+netcdf
+#   modules loaded:
+# module --force purge
+#
+# module load PrgEnv-gnu
+# module load LUMI
+# module load lumi-tools
+# module load init-lumi
+# module load craype
+# module load partition/L
+#
+# module load cray-python
+#
+# module load perftools-base
+#
+# module load libfabric
+# module load cray-mpich
+# module load craype-network-ofi
+# module load gcc-native
+# module load cray-hdf5-parallel
+# module load cray-netcdf-hdf5parallel
+# module load xpmem
+# module load cray-dsmml
+# module load cray-fftw
+# module load craype-x86-rome
+# module load craype-accel-host
+# module load cray-libsci
+
+LINALG_LDFLAGS="-L$CRAY_LIBSCI_PREFIX_DIR/lib -lsci_gnu"
+
+FFTW3_LDFLAGS="-L/opt/cray/pe/fftw/3.3.10.10/x86_rome/lib/ -lfftw3_mpi -lfftw3 -lfftw3f"
+
+with_hdf5=/opt/cray/pe/hdf5-parallel/1.14.3.5/gnu/12.3/
+with_netcdf=/opt/cray/pe/netcdf-hdf5parallel/4.9.0.17/gnu/12.3/
+with_netcdf_fortran=/opt/cray/pe/netcdf-hdf5parallel/4.9.0.17/gnu/12.3/
+
+with_libxc=/pfs/lustrep3/users/mverstra/CODES/LIBXC/
+with_fftw3=$FFTW_ROOT
+
+enable_openmp="yes"
+
+
